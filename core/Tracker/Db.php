@@ -29,9 +29,10 @@ class Piwik_Tracker_Db
 	/**
 	 * Builds the DB object
 	 */
-	public function __construct( $host, $username, $password, $dbname, $port, $driverName = 'mysql') 
+	public function __construct( $host, $username, $password, $dbname, $port, $driverName = 'pgsql')
 	{
 		$this->dsn = $driverName.":dbname=$dbname;host=$host;port=$port";
+		$this->dsn = $driverName.":dbname=$dbname host=$host port=$port user=$username password=$password";
 		$this->username = $username;
 		$this->password = $password;
 	}
@@ -235,14 +236,18 @@ class Piwik_Tracker_Db
 		
 		foreach($this->queriesProfiling as $query => $info)
 		{
-			$time = $info['sum_time_ms'];
+			$time = round($info['sum_time_ms']);
 			$count = $info['count'];
 
-			$queryProfiling = "INSERT INTO ".Piwik_Common::prefixTable('log_profiling')."
-						(query,count,sum_time_ms) VALUES (?,$count,$time)
-						ON DUPLICATE KEY 
-							UPDATE count=count+$count,sum_time_ms=sum_time_ms+$time";
-			$this->query($queryProfiling,array($query));
+			$queryProfiling = "UPDATE ".Piwik_Common::prefixTable('log_profiling')."
+					SET count=count+$count, sum_time_ms=sum_time_ms+$time
+					WHERE query=?";
+			if (!$this->query($queryProfiling,array($query))) {
+				$queryProfiling = "INSERT INTO ".Piwik_Common::prefixTable('log_profiling')."
+							(query,count,sum_time_ms) VALUES (?,$count,$time)";
+				$this->query($queryProfiling,array($query));
+			}
+
 		}
 		
 		// turn back on profiling

@@ -239,8 +239,8 @@ class Piwik_Archive_Single extends Piwik_Archive
 			return $value;
 		}
 		
-		// uncompress when selecting from the BLOB table
-		if($typeValue == 'blob')
+		// uncompress when selecting from the BLOB table (mysql only)
+		if($typeValue == 'blob' && Zend_Registry::get('config')->database->adapter == 'PDO_MYSQL')
 		{
 			$value = gzuncompress($value);
 		}

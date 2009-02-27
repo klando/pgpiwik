@@ -14,5 +14,5 @@ host			= localhost
 username		= databaseLogin
 password		= datatabasePassword
 dbname			= databaseName
-adapter			= PDO_MYSQL ; PDO_MYSQL or MYSQLI
+adapter			= PDO_PGSQL ; PDO_PGSQL or PDO_MYSQL or MYSQLI
 tables_prefix	= piwik_

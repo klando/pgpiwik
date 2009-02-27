@@ -56,7 +56,17 @@ class Piwik_Dashboard_Controller extends Piwik_Controller
 					ON DUPLICATE KEY UPDATE layout=?',
 					$paramsBind);
 	}
-	
+
+// 			$queryProfiling = "UPDATE ".Piwik_Common::prefixTable('log_profiling')."
+// 					SET count=count+$count, sum_time_ms=sum_time_ms+$time
+// 					WHERE query=?";
+// 			if (!$this->query($queryProfiling,array($query))) {
+// 				$queryProfiling = "INSERT INTO ".Piwik_Common::prefixTable('log_profiling')."
+// 							(query,count,sum_time_ms) VALUES (?,$count,$time)";
+// 				$this->query($queryProfiling,array($query));
+// 			}
+
+
 	/**
 	 * Returns the layout in the DB for the given user, or false if the layout has not been set yet.
 	 * Parameters must be checked BEFORE this function call

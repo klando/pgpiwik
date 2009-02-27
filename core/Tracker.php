@@ -141,7 +141,7 @@ class Piwik_Tracker
 			if(!isset($configDb['port']))
 			{
 				// before 0.2.4 there is no port specified in config file
-				$configDb['port'] = '3306';  
+				$configDb['port'] = '5432';
 			}
 			
 			$db = new Piwik_Tracker_Db( 	$configDb['host'], 

@@ -40,11 +40,11 @@ class Piwik_Provider extends Piwik_Plugin
 		);
 		return $hooks;
 	}
-	
+	# FIXME pgsql not used ?!
 	function install()
 	{
 		// add column hostname / hostname ext in the visit table
-		$query = "ALTER IGNORE TABLE `".Piwik::prefixTable('log_visit')."` ADD `location_provider` VARCHAR( 100 ) NULL";
+		$query = "ALTER TABLE ".Piwik::prefixTable('log_visit')." ADD location_provider TEXT NULL";
 		
 		// if the column already exist do not throw error. Could be installed twice...
 		try {
@@ -56,7 +56,7 @@ class Piwik_Provider extends Piwik_Plugin
 	function uninstall()
 	{
 		// add column hostname / hostname ext in the visit table
-		$query = "ALTER TABLE `".Piwik::prefixTable('log_visit')."` DROP `location_provider`";
+		$query = "ALTER TABLE ".Piwik::prefixTable('log_visit')." DROP location_provider";
 		Zend_Registry::get('db')->query($query);
 	}
 	

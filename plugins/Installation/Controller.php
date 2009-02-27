@@ -57,7 +57,7 @@ class Piwik_Installation_Controller extends Piwik_Controller
 		Piwik_Login_Controller::clearSession();
 		
 		$view = new Piwik_Install_View(
-						$this->pathView . 'welcome.tpl', 
+						$this->pathView . 'welcome.tpl',
 						$this->getInstallationSteps(),
 						__FUNCTION__
 					);
@@ -80,11 +80,12 @@ class Piwik_Installation_Controller extends Piwik_Controller
 		
 		$view->infos = $this->getSystemInformation();
 		$view->problemWithSomeDirectories = (false !== array_search(false, $view->infos['directories']));
+# FIXME pgsql
 		
 		$view->showNextStep = !$view->problemWithSomeDirectories 
 							&& $view->infos['phpVersion_ok']
 							&& $view->infos['pdo_ok']
-							&& $view->infos['pdo_mysql_ok']
+							&& ($view->infos['pdo_mysql_ok'] || $view->infos['pdo_pgsql_ok'])
 
 						;
 		$_SESSION['currentStepDone'] = __FUNCTION__;		
@@ -135,22 +136,26 @@ class Piwik_Installation_Controller extends Piwik_Controller
 				try {
 					Piwik::createDatabaseObject($dbInfos);
 				} catch (Zend_Db_Adapter_Exception $e) {
+# FIXME pgsql
 					// database not found, we try to create  it
 					if(ereg('[1049]',$e->getMessage() ))
 					{
 						$dbInfosConnectOnly = $dbInfos;
-						$dbInfosConnectOnly['dbname'] = null;
+// 						$dbInfosConnectOnly['dbname'] = null;
 						Piwik::createDatabaseObject($dbInfosConnectOnly);
 						Piwik::createDatabase($dbInfos['dbname']);
 						$_SESSION['databaseCreated'] = true;
 					}
 				}
-				
-				$mysqlVersion = Piwik::getMysqlVersion();
+				$sqlVersion = Piwik::getSqlVersion();
 				$minimumMysqlVersion = Zend_Registry::get('config')->General->minimum_mysql_version;
-				if(version_compare($mysqlVersion, $minimumMysqlVersion) === -1) 
+				$minimumPgsqlVersion = Zend_Registry::get('config')->General->minimum_pgsql_version;
+				if (Zend_Registry::get('config')->database->adapter == 'PDO_PGSQL' && version_compare($sqlVersion, $minimumPgsqlVersion) === -1) {
+					throw new Exception(vsprintf("Your PostgreSQL version is %s but Piwik requires at least %s.", array($sqlVersion, $minimumPgsqlVersion)));
+				}
+				elseif(Zend_Registry::get('config')->database->adapter != 'PDO_PGSQL' && version_compare($sqlVersion, $minimumMysqlVersion) === -1)
 				{
-					throw new Exception(vsprintf("Your MySQL version is %s but Piwik requires at least %s.", array($mysqlVersion, $minimumMysqlVersion)));
+					throw new Exception(vsprintf("Your MySQL version is %s but Piwik requires at least %s.", array($sqlVersion, $minimumMysqlVersion)));
 				}
 				
 				$_SESSION['db_infos'] = $dbInfos;
@@ -473,13 +478,19 @@ class Piwik_Installation_Controller extends Piwik_Controller
 		{
 		    $infos['pdo_ok'] = true;
 		}
-				
+
 		$infos['pdo_mysql_ok'] = false;
 		if (in_array('pdo_mysql', $extensions))  
 		{
 		    $infos['pdo_mysql_ok'] = true;
 		}
 		
+		$infos['pdo_pgsql_ok'] = false;
+		if (in_array('pdo_pgsql', $extensions))
+		{
+		    $infos['pdo_pgsql_ok'] = true;
+		}
+
 		$infos['gd_ok'] = false;
 		if (in_array('gd', $extensions)) 
 		{

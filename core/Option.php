@@ -43,7 +43,7 @@ class Piwik_Option
 			return $this->all[$name];
 		}
 		$value = Piwik_FetchOne( 'SELECT option_value 
-							FROM `' . Piwik::prefixTable('option') . '`
+							FROM ' . Piwik::prefixTable('option') . '
 							WHERE option_name = ?', $name);
 		if($value === false)
 		{
@@ -63,10 +63,14 @@ class Piwik_Option
 	public function set($name, $value, $autoload = 0)
 	{
 		$autoload = (int)$autoload;
-		Piwik_Query('INSERT INTO `'. Piwik::prefixTable('option') . '` (option_name, option_value, autoload) '.
-					' VALUES (?, ?, ?) '.
-					' ON DUPLICATE KEY UPDATE option_value = ?', 
-					array($name, $value, $autoload, $value));
+		if (!Piwik_Query('UPDATE '. Piwik::prefixTable('option') .
+					' SET option_value = ? '.
+					' WHERE option_name = ? ',
+					array($value, $name))){
+			Piwik_Query('INSERT INTO '. Piwik::prefixTable('option') . ' (option_name, option_value, autoload) '.
+						' VALUES (?, ?, ?) ',
+						array($name, $value, $autoload));
+		}
 		$this->all[$name] = $value;
 	}
 	

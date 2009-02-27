@@ -60,9 +60,9 @@ class Piwik_LanguagesManager extends Piwik_Plugin
 		// we catch the exception
 		try{
 			$sql = "CREATE TABLE ". Piwik::prefixTable('user_language')." (
-					login VARCHAR( 20 ) NOT NULL ,
-					language VARCHAR( 10 ) NOT NULL ,
-					PRIMARY KEY ( login )
+					login TEXT NOT NULL REFERENCES ".Piwik::prefixTable('user')." DEFERRABLE INITIALLY DEFERRED,
+					language TEXT NOT NULL ,
+					PRIMARY KEY ( login,language )
 					) " ;
 			Piwik_Query($sql);
 		} catch(Zend_Db_Statement_Exception $e){

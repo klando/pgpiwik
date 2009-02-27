@@ -5,8 +5,8 @@
  */
 $minVisitors = 200;
 $maxVisitors = 200;
-$nbActions = 3;
-$daysToCompute = 2;
+$nbActions = 5;
+$daysToCompute = 9;
 
 //-----------------------------------------------------------------------------
 error_reporting(E_ALL|E_NOTICE);
@@ -74,7 +74,6 @@ while($startTime <= time())
 	$visitors = rand($minVisitors, $maxVisitors);
 	$actions = $nbActions;
 	$generator->setTimestampToUse($startTime);
-	
 	$nbActionsTotalThisDay = $generator->generate($visitors, $actions);
 	$actionsPerVisit = round($nbActionsTotalThisDay / $visitors);
 	print("Generated $visitors unique visitors and $actionsPerVisit actions per visit for the ".date("Y-m-d", $startTime)."<br>\n");

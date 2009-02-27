@@ -3,6 +3,7 @@
 {if isset($errorMessage)}
 	<div class="error">
 		<img src="themes/default/images/error_medium.png">
+<!-- # FIXME pgsql -->
 		{'Installation_MysqlErrorConnect'|translate}:
 		<br />{$errorMessage}
 		

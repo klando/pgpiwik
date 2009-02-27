@@ -118,13 +118,14 @@ class Piwik_Actions extends Piwik_Plugin
 							type,
 							count(distinct t1.idvisit) as nb_visits, 
 							count(distinct visitor_idcookie) as nb_uniq_visitors,
-							count(*) as nb_hits							
+							count(*) as nb_hits,
+							t3.idaction
 					FROM (".$archiveProcessing->logTable." as t1
 						LEFT JOIN ".$archiveProcessing->logVisitActionTable." as t2 USING (idvisit))
 							LEFT JOIN ".$archiveProcessing->logActionTable." as t3 USING (idaction)
 					WHERE visit_server_date = ?
 					AND idsite = ?
-					GROUP BY t3.idaction
+					GROUP BY t3.idaction,name,type
 					ORDER BY nb_hits DESC";
 		$query = $archiveProcessing->db->query($query, array( $archiveProcessing->strDateStart, $archiveProcessing->idsite ));
 		$modified = $this->updateActionsTableWithRowQuery($query);
@@ -144,7 +145,7 @@ class Piwik_Actions extends Piwik_Plugin
 						JOIN ".$archiveProcessing->logActionTable." ON (visit_entry_idaction = idaction)
 					WHERE visit_server_date = ?
 					AND idsite = ?
-					GROUP BY visit_entry_idaction
+					GROUP BY visit_entry_idaction,name,type
 					";
 		$query = $archiveProcessing->db->query($query, array( $archiveProcessing->strDateStart, $archiveProcessing->idsite ));
 		$modified = $this->updateActionsTableWithRowQuery($query);
@@ -163,7 +164,7 @@ class Piwik_Actions extends Piwik_Plugin
 						JOIN ".$archiveProcessing->logActionTable." ON (visit_exit_idaction = idaction)
 				 	WHERE visit_server_date = ?
 				 		AND idsite = ?
-				 	GROUP BY visit_exit_idaction
+						GROUP BY visit_exit_idaction,name,type
 					";
 		$query = $archiveProcessing->db->query($query, array( $archiveProcessing->strDateStart, $archiveProcessing->idsite ));
 		$modified = $this->updateActionsTableWithRowQuery($query);
@@ -179,7 +180,7 @@ class Piwik_Actions extends Piwik_Plugin
 							JOIN ".$archiveProcessing->logActionTable."  log_action ON (log_action.idaction = log_link_visit_action.idaction_ref)				 	
 					WHERE visit_server_date = ?
 				 		AND idsite = ?
-				 	GROUP BY idaction_ref
+					GROUP BY idaction_ref,name,type
 				";
 		$query = $archiveProcessing->db->query($query, array( $archiveProcessing->strDateStart, $archiveProcessing->idsite ));
 		$modified = $this->updateActionsTableWithRowQuery($query);

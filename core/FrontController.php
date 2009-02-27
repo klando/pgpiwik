@@ -240,7 +240,8 @@ class Piwik_FrontController
 			
 			require_once "CoreUpdater/Controller.php";
 			$updaterController = new Piwik_CoreUpdater_Controller();
-			$updaterController->checkForCoreAndPluginsUpdates();
+# FIXME pgsql
+// 			$updaterController->checkForCoreAndPluginsUpdates();
 			
 			Piwik_PluginsManager::getInstance()->installLoadedPlugins();
 			Piwik::install();

@@ -461,12 +461,8 @@ abstract class Piwik_ArchiveProcessing
 	protected function loadNextIdarchive()
 	{
 		$db = Zend_Registry::get('db');
-		$id = $db->fetchOne("/* SHARDING_ID_SITE = ".$this->idsite." */ SELECT max(idarchive) FROM ".$this->tableArchiveNumeric->getTableName());
-		if(empty($id))
-		{
-			$id = 0;
-		}
-		$this->idArchive = $id + 1;
+		$id = $db->fetchOne("/* SHARDING_ID_SITE = ".$this->idsite." */ SELECT nextval('idarchive_seq')");
+		$this->idArchive = $id;
 		
 	}
 	
@@ -486,7 +482,7 @@ abstract class Piwik_ArchiveProcessing
 		{
 			$table = $this->tableArchiveBlob;
 		}
-		
+
 		$query = "INSERT INTO ".$table->getTableName()." (idarchive, idsite, date1, date2, period, ts_archived, name, value)
 					VALUES (?,?,?,?,?,?,?,?)";
 		Zend_Registry::get('db')->query($query, 

@@ -78,6 +78,9 @@ class Piwik_UserSettings extends Piwik_Plugin
 			
 		$recordName = 'UserSettings_configuration';
 		$labelSQL = "CONCAT(config_os, ';', config_browser_name, ';', config_resolution)";
+		if (Zend_Registry::get('config')->database->adapter == 'PDO_PGSQL') {
+			$labelSQL = "config_os || ';' || config_browser_name || ';' || config_resolution";
+		}
 		$interestByConfiguration = $archiveProcessing->getArrayInterestForLabel($labelSQL);
 		$tableConfiguration = $archiveProcessing->getDataTableFromArray($interestByConfiguration);
 		$record = new Piwik_ArchiveProcessing_Record_BlobArray($recordName, $tableConfiguration->getSerialized());
@@ -90,6 +93,9 @@ class Piwik_UserSettings extends Piwik_Plugin
 		
 		$recordName = 'UserSettings_browser';
 		$labelSQL = "CONCAT(config_browser_name, ';', config_browser_version)";
+		if (Zend_Registry::get('config')->database->adapter == 'PDO_PGSQL') {
+			$labelSQL = "config_browser_name || ';' || config_browser_version";
+		}
 		$interestByBrowser = $archiveProcessing->getArrayInterestForLabel($labelSQL);
 		$tableBrowser = $archiveProcessing->getDataTableFromArray($interestByBrowser);
 		$record = new Piwik_ArchiveProcessing_Record_BlobArray($recordName, $tableBrowser->getSerialized());

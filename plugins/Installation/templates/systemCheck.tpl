@@ -16,8 +16,9 @@
 		</td>
 	</tr>  
 	<tr>
+<!-- # FIXME pgsql -->
 		<td class="label">{'Installation_SystemCheckPdoMysql'|translate}</td>
-		<td>{if $infos.pdo_mysql_ok}{$ok}
+		<td>{if $infos.pdo_pgsql_ok}{$ok}
 		{else}{$error}
 		{/if}
 		
@@ -25,6 +26,7 @@
 			<p class="error" style="width:80%">{'Installation_SystemCheckPdoError'|translate}
 			<small>
 			<br /><br />
+<!-- # FIXME pgsql -->
 			{'Installation_SystemCheckPdoHelp'|translate:"<br/><code>extension=php_pdo.dll</code><br /><code>extension=php_pdo_mysql.dll</code><br />":"<code>--with-pdo-mysql </code>":"<br/><code>extension=pdo.so</code><br /><code>extension=pdo_mysql.so</code><br />"}
 			</small>
 			</p>

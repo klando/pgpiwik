@@ -48,7 +48,7 @@ class Piwik_Dashboard extends Piwik_Plugin
 		// we catch the exception
 		try{
 			$sql = "CREATE TABLE ". Piwik::prefixTable('user_dashboard')." (
-					login VARCHAR( 20 ) NOT NULL ,
+					login TEXT NOT NULL REFERENCES ".Piwik::prefixTable('user')." DEFERRABLE INITIALLY DEFERRED,
 					iddashboard INT NOT NULL ,
 					layout TEXT NOT NULL,
 					PRIMARY KEY ( login , iddashboard )

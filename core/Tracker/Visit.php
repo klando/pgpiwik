@@ -88,10 +88,9 @@ class Piwik_Tracker_Visit implements Piwik_Tracker_Visit_Interface
 		{
 			$someGoalsConverted = true;
 		}
-		
 		// the visitor and session
 		$this->recognizeTheVisitor();
-		if( $this->isVisitorKnown() 
+		if( $this->isVisitorKnown()
 			&& $this->isLastActionInTheSameVisit())
 		{
 			$idActionReferer = $this->visitorInfo['visit_exit_idaction'];
@@ -104,6 +103,9 @@ class Piwik_Tracker_Visit implements Piwik_Tracker_Visit_Interface
 		else
 		{
 			$this->handleNewVisit($actionId, $someGoalsConverted);
+			if (empty($this->visitorInfo['idvisit'])) {
+				$this->visitorInfo['idvisit'] = 0;
+			}
 			$action->record( $this->visitorInfo['idvisit'], 0, 0 );
 		}
 		
@@ -140,6 +142,9 @@ class Piwik_Tracker_Visit implements Piwik_Tracker_Visit_Interface
 			$sqlUpdateGoalConverted = " visit_goal_converted = 1,";
 		}
 		
+		if (empty($actionId)) {
+			$actionId = 0;
+		}
 		Piwik_Tracker::getDatabase()->query("/* SHARDING_ID_SITE = ". $this->idsite ." */
 							UPDATE ". Piwik_Common::prefixTable('log_visit')." 
 							SET visit_last_action_time = ?,
@@ -147,8 +152,7 @@ class Piwik_Tracker_Visit implements Piwik_Tracker_Visit_Interface
 								visit_total_actions = visit_total_actions + 1,
 								$sqlUpdateGoalConverted
 								visit_total_time = UNIX_TIMESTAMP(visit_last_action_time) - UNIX_TIMESTAMP(visit_first_action_time)
-							WHERE idvisit = ?
-							LIMIT 1",
+							WHERE idvisit = ?",
 							array( 	$datetimeServer,
 									$actionId,
 									$this->visitorInfo['idvisit'] )
@@ -199,6 +203,9 @@ class Piwik_Tracker_Visit implements Piwik_Tracker_Visit_Interface
 		/**
 		 * Save the visitor
 		 */
+		if (empty($actionId)) {
+			$actionId = 0;
+		}
 		$this->visitorInfo = array(
 			'idsite' 				=> $this->idsite,
 			'visitor_localtime' 	=> $localTime,
@@ -243,7 +250,7 @@ class Piwik_Tracker_Visit implements Piwik_Tracker_Visit_Interface
 		
 		$fields = implode(", ", array_keys($this->visitorInfo));
 		$values = substr(str_repeat( "?,",count($this->visitorInfo)),0,-1);
-		
+
 		Piwik_Tracker::getDatabase()->query( "INSERT INTO ".Piwik_Common::prefixTable('log_visit').
 						" ($fields) VALUES ($values)", array_values($this->visitorInfo));
 						
@@ -581,7 +588,6 @@ class Piwik_Tracker_Visit implements Piwik_Tracker_Visit_Interface
 			throw new Exception("The Action object set in the plugin must implement the interface Piwik_Tracker_Action_Interface");
 		}
 		$action->setIdSite($this->idsite);
-		
 		return $action;
 	}
 	

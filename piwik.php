@@ -27,7 +27,7 @@ require_once "Tracker/Db.php";
 require_once "Tracker/Visit.php";
 require_once "Tracker/GoalManager.php";
 
-$GLOBALS['DEBUGPIWIK'] = false;
+$GLOBALS['DEBUGPIWIK'] = true;
 
 ob_start();
 if($GLOBALS['DEBUGPIWIK'] === true)

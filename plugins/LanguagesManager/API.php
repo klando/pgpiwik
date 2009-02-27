@@ -78,5 +78,13 @@ class Piwik_LanguagesManager_API
 						VALUES (?,?)
 					ON DUPLICATE KEY UPDATE language=?',
 					$paramsBind);
+// 			$queryProfiling = "UPDATE ".Piwik_Common::prefixTable('log_profiling')."
+// 					SET count=count+$count, sum_time_ms=sum_time_ms+$time
+// 					WHERE query=?";
+// 			if (!$this->query($queryProfiling,array($query))) {
+// 				$queryProfiling = "INSERT INTO ".Piwik_Common::prefixTable('log_profiling')."
+// 							(query,count,sum_time_ms) VALUES (?,$count,$time)";
+// 				$this->query($queryProfiling,array($query));
+// 			}
 	}
 }

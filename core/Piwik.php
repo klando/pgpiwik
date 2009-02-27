@@ -475,229 +475,237 @@ class Piwik
 		$config = Zend_Registry::get('config');
 		$prefixTables = $config->database->tables_prefix;
 		$tables = array(
-			'user' => "CREATE TABLE {$prefixTables}user (
-						  login VARCHAR(20) NOT NULL,
-						  password CHAR(32) NOT NULL,
-						  alias VARCHAR(45) NOT NULL,
-						  email VARCHAR(100) NOT NULL,
-						  token_auth CHAR(32) NOT NULL,
-						  date_registered TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-						  PRIMARY KEY(login),
-						  UNIQUE INDEX uniq_keytoken(token_auth)
-						)
-			",
-			
-			'access' => "CREATE TABLE {$prefixTables}access (
-						  login VARCHAR(20) NOT NULL,
-						  idsite INTEGER UNSIGNED NOT NULL,
-						  access VARCHAR(10) NULL,
-						  PRIMARY KEY(login, idsite)
-						)
-			",
-			
 			'site' => "CREATE TABLE {$prefixTables}site (
-						  idsite INTEGER(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-						  name VARCHAR(90) NOT NULL,
-						  main_url VARCHAR(255) NOT NULL,
-  						  ts_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-						  PRIMARY KEY(idsite)
+						  idsite SERIAL PRIMARY KEY,
+						  name TEXT NOT NULL,
+						  main_url TEXT NOT NULL,
+						  ts_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 						)
-			",
-			
-			'site_url' => "CREATE TABLE {$prefixTables}site_url (
-							  idsite INTEGER(10) UNSIGNED NOT NULL,
-							  url VARCHAR(255) NOT NULL,
-							  PRIMARY KEY(idsite, url)
-						)
-			",
-			
-			'goal' => "	CREATE TABLE `{$prefixTables}goal` (
-							  `idsite` int(11) NOT NULL,
-							  `idgoal` int(11) NOT NULL,
-							  `name` varchar(50) NOT NULL,
-							  `match_attribute` varchar(20) NOT NULL,
-							  `pattern` varchar(255) NOT NULL,
-							  `pattern_type` varchar(10) NOT NULL,
-							  `case_sensitive` tinyint(4) NOT NULL,
-							  `revenue` float NOT NULL,
-							  `deleted` tinyint(4) NOT NULL default '0',
-							  PRIMARY KEY  (`idsite`,`idgoal`)
-							) 
 			",
 			
 			'logger_message' => "CREATE TABLE {$prefixTables}logger_message (
-									  idlogger_message INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
-									  timestamp TIMESTAMP NULL,
-									  message TEXT NULL,
-									  PRIMARY KEY(idlogger_message)
+									  idlogger_message SERIAL PRIMARY KEY,
+									  timestamp TIMESTAMP WITH TIME ZONE NULL,
+									  message TEXT NULL
 									)
 			",
 			
 			'logger_api_call' => "CREATE TABLE {$prefixTables}logger_api_call (
-									  idlogger_api_call INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
-									  class_name VARCHAR(255) NULL,
-									  method_name VARCHAR(255) NULL,
+									  idlogger_api_call SERIAL PRIMARY KEY,
+									  class_name TEXT NULL,
+									  method_name TEXT NULL,
 									  parameter_names_default_values TEXT NULL,
 									  parameter_values TEXT NULL,
 									  execution_time FLOAT NULL,
 									  caller_ip BIGINT NULL,
-									  timestamp TIMESTAMP NULL,
-									  returned_value TEXT NULL,
-									  PRIMARY KEY(idlogger_api_call)
-									) 
+									  timestamp TIMESTAMP WITH TIME ZONE NULL,
+									  returned_value TEXT NULL
+									)
 			",
 			
 			'logger_error' => "CREATE TABLE {$prefixTables}logger_error (
-									  idlogger_error INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
+									  idlogger_error SERIAL PRIMARY KEY,
 									  timestamp TIMESTAMP NULL,
 									  message TEXT NULL,
-									  errno INTEGER UNSIGNED NULL,
-									  errline INTEGER UNSIGNED NULL,
-									  errfile VARCHAR(255) NULL,
-									  backtrace TEXT NULL,
-									  PRIMARY KEY(idlogger_error)
+									  errno INTEGER  NULL CHECK (errno >= 0),
+									  errline INTEGER  NULL CHECK (errline >= 0),
+									  errfile TEXT NULL,
+									  backtrace TEXT NULL
 									)
 			",
 			
 			'logger_exception' => "CREATE TABLE {$prefixTables}logger_exception (
-									  idlogger_exception INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
-									  timestamp TIMESTAMP NULL,
+									  idlogger_exception SERIAL PRIMARY KEY,
+									  timestamp TIMESTAMP WITH TIME ZONE NULL,
 									  message TEXT NULL,
-									  errno INTEGER UNSIGNED NULL,
-									  errline INTEGER UNSIGNED NULL,
-									  errfile VARCHAR(255) NULL,
-									  backtrace TEXT NULL,
-									  PRIMARY KEY(idlogger_exception)
+									  errno INTEGER  NULL CHECK (errno >= 0),
+									  errline INTEGER  NULL CHECK (errline >= 0),
+									  errfile TEXT NULL,
+									  backtrace TEXT NULL
 									)
 			",
 			
-			
 			'log_action' => "CREATE TABLE {$prefixTables}log_action (
-									  idaction INTEGER(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-									  name VARCHAR(255) NOT NULL,
-  									  type TINYINT UNSIGNED NULL,
-									  PRIMARY KEY(idaction),
-									  INDEX index_type_name (type, name(15))
+									  idaction SERIAL PRIMARY KEY,
+									  name TEXT NOT NULL,
+									  type INTEGER NULL CHECK (type >= 0)
 						)
 			",
 					
 			'log_visit' => "CREATE TABLE {$prefixTables}log_visit (
-							  idvisit INTEGER(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-							  idsite INTEGER(10) UNSIGNED NOT NULL,
+							  idvisit SERIAL PRIMARY KEY,
+							  idsite INTEGER  NOT NULL REFERENCES {$prefixTables}site DEFERRABLE INITIALLY DEFERRED,
 							  visitor_localtime TIME NOT NULL,
-							  visitor_idcookie CHAR(32) NOT NULL,
-							  visitor_returning TINYINT(1) NOT NULL,
-							  visit_first_action_time DATETIME NOT NULL,
-							  visit_last_action_time DATETIME NOT NULL,
+							  visitor_idcookie TEXT NOT NULL,
+							  visitor_returning INTEGER NOT NULL,
+							  visit_first_action_time TIMESTAMP WITH TIME ZONE NOT NULL,
+							  visit_last_action_time TIMESTAMP WITH TIME ZONE NOT NULL,
 							  visit_server_date DATE NOT NULL,
-							  visit_exit_idaction INTEGER(11) NOT NULL,
-							  visit_entry_idaction INTEGER(11) NOT NULL,
-							  visit_total_actions SMALLINT(5) UNSIGNED NOT NULL,
-							  visit_total_time SMALLINT(5) UNSIGNED NOT NULL,
-							  visit_goal_converted TINYINT(1) NOT NULL,
-							  referer_type INTEGER UNSIGNED NULL,
-							  referer_name VARCHAR(70) NULL,
+							  visit_exit_idaction INTEGER NOT NULL,
+							  visit_entry_idaction INTEGER NOT NULL,
+							  visit_total_actions INTEGER NOT NULL CHECK (visit_total_actions >= 0),
+							  visit_total_time INTEGER NOT NULL CHECK (visit_total_time >= 0),
+							  visit_goal_converted INTEGER NOT NULL,
+							  referer_type INTEGER  NULL CHECK (referer_type >= 0),
+							  referer_name TEXT NULL,
 							  referer_url TEXT NOT NULL,
-							  referer_keyword VARCHAR(255) NULL,
-							  config_md5config CHAR(32) NOT NULL,
-							  config_os CHAR(3) NOT NULL,
-							  config_browser_name VARCHAR(10) NOT NULL,
-							  config_browser_version VARCHAR(20) NOT NULL,
-							  config_resolution VARCHAR(9) NOT NULL,
-							  config_pdf TINYINT(1) NOT NULL,
-							  config_flash TINYINT(1) NOT NULL,
-							  config_java TINYINT(1) NOT NULL,
-							  config_director TINYINT(1) NOT NULL,
-							  config_quicktime TINYINT(1) NOT NULL,
-							  config_realplayer TINYINT(1) NOT NULL,
-							  config_windowsmedia TINYINT(1) NOT NULL,
-							  config_cookie TINYINT(1) NOT NULL,
-							  location_ip BIGINT(11) NOT NULL,
-							  location_browser_lang VARCHAR(20) NOT NULL,
-							  location_country CHAR(3) NOT NULL,
-							  location_continent CHAR(3) NOT NULL,
-							  PRIMARY KEY(idvisit),
-							  INDEX index_idsite_date (idsite, visit_server_date)
+							  referer_keyword TEXT NULL,
+							  config_md5config TEXT NOT NULL,
+							  config_os TEXT NOT NULL,
+							  config_browser_name TEXT NOT NULL,
+							  config_browser_version TEXT NOT NULL,
+							  config_resolution TEXT NOT NULL,
+							  config_pdf INTEGER NOT NULL,
+							  config_flash INTEGER NOT NULL,
+							  config_java INTEGER NOT NULL,
+							  config_director INTEGER NOT NULL,
+							  config_quicktime INTEGER NOT NULL,
+							  config_realplayer INTEGER NOT NULL,
+							  config_windowsmedia INTEGER NOT NULL,
+							  config_cookie INTEGER NOT NULL,
+							  location_ip BIGINT NOT NULL,
+							  location_browser_lang TEXT NOT NULL,
+							  location_country TEXT NOT NULL,
+							  location_continent TEXT NOT NULL
 							)
 			",		
 			
-			'log_conversion' => "CREATE TABLE `{$prefixTables}log_conversion` (
-									  `idvisit` int(10) unsigned NOT NULL,
-									  `idsite` int(10) unsigned NOT NULL,
-									  `visitor_idcookie` char(32) NOT NULL,
-									  `server_time` datetime NOT NULL,
-									  `visit_server_date` date NOT NULL,
-									  `idaction` int(11) NOT NULL,
-									  `idlink_va` int(11) NOT NULL,
-									  `referer_idvisit` int(10) unsigned default NULL,
-									  `referer_visit_server_date` date default NULL,
-									  `referer_type` int(10) unsigned default NULL,
-									  `referer_name` varchar(70) default NULL,
-									  `referer_keyword` varchar(255) default NULL,
-									  `visitor_returning` tinyint(1) NOT NULL,
-									  `location_country` char(3) NOT NULL,
-									  `location_continent` char(3) NOT NULL,
-									  `url` text NOT NULL,
-									  `idgoal` int(10) unsigned NOT NULL,
-									  `revenue` float default NULL,
-									  PRIMARY KEY  (`idvisit`,`idgoal`),
-									  KEY `index_idsite_date` (`idsite`,`visit_server_date`)
-									) 
-			",
-							
 			'log_link_visit_action' => "CREATE TABLE {$prefixTables}log_link_visit_action (
-											  idlink_va INTEGER(11) NOT NULL AUTO_INCREMENT,
-											  idvisit INTEGER(10) UNSIGNED NOT NULL,
-											  idaction INTEGER(10) UNSIGNED NOT NULL,
-											  idaction_ref INTEGER(11) UNSIGNED NOT NULL,
-											  time_spent_ref_action INTEGER(10) UNSIGNED NOT NULL,
-											  PRIMARY KEY(idlink_va),
-											  INDEX index_idvisit(idvisit)
+											  idlink_va SERIAL PRIMARY KEY,
+											  idvisit INTEGER  NOT NULL,
+											  idaction INTEGER  NOT NULL,
+											  idaction_ref INTEGER NOT NULL,
+											  time_spent_ref_action INTEGER  NOT NULL CHECK (time_spent_ref_action >= 0)
 											)
 			",
 		
+			'user' => "CREATE TABLE {$prefixTables}user (
+						  login TEXT NOT NULL PRIMARY KEY,
+						  password TEXT NOT NULL,
+						  alias TEXT NOT NULL,
+						  email TEXT NOT NULL,
+						  token_auth TEXT NOT NULL UNIQUE,
+						  date_registered TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+						)
+			",
+
+			'access' => "CREATE TABLE {$prefixTables}access (
+						  login TEXT NOT NULL,
+						  idsite INTEGER  NOT NULL REFERENCES {$prefixTables}site DEFERRABLE INITIALLY DEFERRED,
+						  access TEXT NULL,
+						  PRIMARY KEY(login, idsite)
+						)
+			",
+
+			'site_url' => "CREATE TABLE {$prefixTables}site_url (
+							  idsite INTEGER NOT NULL REFERENCES {$prefixTables}site DEFERRABLE INITIALLY DEFERRED,
+							  url TEXT NOT NULL,
+							  PRIMARY KEY(idsite, url)
+						)
+			",
+
+			'goal' => "	CREATE TABLE {$prefixTables}goal (
+							  idsite INTEGER NOT NULL REFERENCES {$prefixTables}site DEFERRABLE INITIALLY DEFERRED,
+							  idgoal INTEGER NOT NULL,
+							  name TEXT NOT NULL,
+							  match_attribute TEXT NOT NULL,
+							  pattern TEXT NOT NULL,
+							  pattern_type TEXT NOT NULL,
+							  case_sensitive INTEGER NOT NULL,
+							  revenue FLOAT NOT NULL,
+							  deleted INTEGER NOT NULL default 0,
+							  PRIMARY KEY  (idsite,idgoal)
+							)
+			",
+
+			'log_conversion' => "CREATE TABLE {$prefixTables}log_conversion (
+									  idvisit INTEGER NOT NULL REFERENCES {$prefixTables}log_visit DEFERRABLE INITIALLY DEFERRED,
+									  idsite INTEGER NOT NULL REFERENCES {$prefixTables}site DEFERRABLE INITIALLY DEFERRED,
+									  visitor_idcookie TEXT NOT NULL,
+									  server_time TIMESTAMP WITH TIME ZONE NOT NULL,
+									  visit_server_date DATE NOT NULL,
+									  idaction INTEGER NOT NULL REFERENCES {$prefixTables}log_action DEFERRABLE INITIALLY DEFERRED,
+									  idlink_va INTEGER NOT NULL,
+									  referer_idvisit INTEGER DEFAULT NULL CHECK (referer_idvisit >= 0),
+									  referer_visit_server_date DATE DEFAULT NULL,
+									  referer_type INTEGER DEFAULT NULL CHECK (referer_type >= 0),
+									  referer_name TEXT DEFAULT NULL,
+									  referer_keyword TEXT DEFAULT NULL,
+									  visitor_returning INTEGER NOT NULL,
+									  location_country TEXT NOT NULL,
+									  location_continent TEXT NOT NULL,
+									  url TEXT NOT NULL,
+									  idgoal INTEGER NOT NULL CHECK (idgoal >= 0),
+									  revenue FLOAT DEFAULT NULL,
+									  PRIMARY KEY  (idvisit,idgoal)
+									)
+			",
+
 			'log_profiling' => "CREATE TABLE {$prefixTables}log_profiling (
-								  query TEXT NOT NULL,
-								  count INTEGER UNSIGNED NULL,
-								  sum_time_ms FLOAT NULL,
-								  UNIQUE INDEX query(query(100))
+								  query TEXT NOT NULL UNIQUE,
+								  count INTEGER  NULL CHECK (count >= 0),
+								  sum_time_ms FLOAT NULL
 								)
 			",
 			
-			'option' => "CREATE TABLE `{$prefixTables}option` (
-								option_name VARCHAR( 64 ) NOT NULL ,
-								option_value LONGTEXT NOT NULL ,
-								autoload TINYINT NOT NULL DEFAULT '1',
-								PRIMARY KEY ( option_name )
+			'option' => "CREATE TABLE {$prefixTables}option (
+								option_name TEXT NOT NULL PRIMARY KEY,
+								option_value TEXT NOT NULL ,
+								autoload INTEGER NOT NULL DEFAULT 1
 								)
 			",
-								
+						# FIXME idsite NULL ?
 			'archive_numeric'	=> "CREATE TABLE {$prefixTables}archive_numeric (
-									  idarchive INTEGER UNSIGNED NOT NULL,
-									  name VARCHAR(255) NOT NULL,
-									  idsite INTEGER UNSIGNED NULL,
-									  date1 DATE NULL,
-								  	  date2 DATE NULL,
-									  period TINYINT UNSIGNED NULL,
-								  	  ts_archived DATETIME NULL,
-								  	  value FLOAT NULL,
-									  PRIMARY KEY(idarchive, name),
-									  KEY `index_all` (`idsite`,`date1`,`date2`,`name`,`ts_archived`)
-									)
-			",
-			'archive_blob'	=> "CREATE TABLE {$prefixTables}archive_blob (
-									  idarchive INTEGER UNSIGNED NOT NULL,
-									  name VARCHAR(255) NOT NULL,
-									  idsite INTEGER UNSIGNED NULL,
+									  idarchive INTEGER  NOT NULL CHECK (idarchive >= 0),
+									  name TEXT NOT NULL,
+									  idsite INTEGER  NULL CHECK (idsite >= 0),
 									  date1 DATE NULL,
 									  date2 DATE NULL,
-									  period TINYINT UNSIGNED NULL,
-									  ts_archived DATETIME NULL,
-									  value MEDIUMBLOB NULL,
-									  PRIMARY KEY(idarchive, name),
-									  KEY `index_all` (`idsite`,`date1`,`date2`,`name`,`ts_archived`)
+									  period INTEGER NULL CHECK (period >= 0),
+									  ts_archived TIMESTAMP WITH TIME ZONE NULL,
+								  	  value FLOAT NULL,
+									  PRIMARY KEY(idarchive, name)
 									)
 			",
+						# FIXME idsite NULL ?
+			'archive_blob'	=> "CREATE TABLE {$prefixTables}archive_blob (
+									  idarchive INTEGER  NOT NULL CHECK (idarchive >= 0),
+									  name TEXT NOT NULL,
+									  idsite INTEGER  NULL CHECK (idsite >= 0),
+									  date1 DATE NULL,
+									  date2 DATE NULL,
+									  period INTEGER NULL CHECK (period >= 0),
+									  ts_archived TIMESTAMP WITH TIME ZONE NULL,
+									  value TEXT NULL,
+									  PRIMARY KEY(idarchive, name)
+									)			",
+		);
+		return $tables;
+	}
+# FIXME pgsql merge functions
+	static public function getIndexCreateSql( $indexName )
+	{
+		$index = Piwik::getIndexesCreateSql();
+
+		if(!isset($index[$indexName]))
+		{
+			throw new Exception("The index '$indexName' SQL creation code couldn't be found.");
+		}
+
+		return $index[$indexName];
+	}
+
+	static public function getIndexesCreateSql()
+	{
+		$config = Zend_Registry::get('config');
+		$prefixTables = $config->database->tables_prefix;
+		$tables = array(
+			'log_action_index' => "CREATE INDEX {$prefixTables}log_action_index ON {$prefixTables}log_action(type, name)",
+			'log_visit_index' => "CREATE INDEX {$prefixTables}log_visit_index ON {$prefixTables}log_visit(idsite, visit_server_date)",
+			'log_link_visit_action_index' => "CREATE INDEX {$prefixTables}log_link_visit_action_index ON {$prefixTables}log_link_visit_action(idvisit)",
+			'log_conversion_index' => "CREATE INDEX {$prefixTables}log_conversion_index ON {$prefixTables}log_conversion(idsite,visit_server_date)",
+			'archive_numeric_index' => "CREATE INDEX {$prefixTables}archive_numeric_index ON {$prefixTables}archive_numeric(idsite,date1,date2,name,ts_archived)",
+			'archive_blob_index' => "CREATE INDEX {$prefixTables}archive_blob_index ON {$prefixTables}archive_blob(idsite,date1,date2,name,ts_archived)"
 		);
 		return $tables;
 	}
@@ -1118,7 +1126,7 @@ class Piwik
 			$config = Zend_Registry::get('config');
 			$prefixTables = $config->database->tables_prefix;
 			
-			$allTables = $db->fetchCol("SHOW TABLES");
+			$allTables = $db->listTables();
 			
 			// all the tables to be installed
 			$allMyTables = self::getTablesNames();
@@ -1127,16 +1135,28 @@ class Piwik
 			$tablesInstalled = array_intersect($allMyTables, $allTables);
 			
 			// at this point we have only the piwik tables which is good
-			// but we still miss the piwik generated tables (using the class Piwik_TablePartitioning)`
+			// but we still miss the piwik generated tables (using the class Piwik_TablePartitioning)
 			$idSiteInSql = "no";
 			if(!is_null($idSite))
 			{
 				$idSiteInSql = $idSite;
 			}
+			$sql = "SHOW TABLES ";
+			if ($config->database->adapter == 'PDO_PGSQL') {
+				$sql = "SELECT c.relname  AS table_name "
+					. "FROM pg_catalog.pg_class c "
+					. "JOIN pg_catalog.pg_roles r ON r.oid = c.relowner "
+					. "LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace "
+					. "WHERE n.nspname <> 'pg_catalog' "
+					. "AND n.nspname !~ '^pg_toast' "
+					. "AND pg_catalog.pg_table_is_visible(c.oid) "
+					. "AND c.relkind = 'r' "
+					. "AND c.relname ";
+			}
 			$allArchiveNumeric = $db->fetchCol("/* SHARDING_ID_SITE = ".$idSiteInSql." */ 
-												SHOW TABLES LIKE '".$prefixTables."archive_numeric%'");
+												$sql LIKE '".$prefixTables."archive_numeric%'");
 			$allArchiveBlob = $db->fetchCol("/* SHARDING_ID_SITE = ".$idSiteInSql." */ 
-												SHOW TABLES LIKE '".$prefixTables."archive_blob%'");
+												$sql LIKE '".$prefixTables."archive_blob%'");
 					
 			$allTablesReallyInstalled = array_merge($tablesInstalled, $allArchiveNumeric, $allArchiveBlob);
 			
@@ -1182,7 +1202,10 @@ class Piwik
 		}
 		$dbInfos['password'] = htmlspecialchars_decode($dbInfos['password']);
 		$dbInfos['profiler'] = $config->Debug->enable_sql_profiler;
-		
+		if ($config->database->adapter == 'PDO_PGSQL') {
+			unset ($dbInfos['tables_prefix']);
+			unset ($dbInfos['adapter']);
+		}
 		$db = null;
 		Piwik_PostEvent('Reporting.createDatabase', $db);
 		if(is_null($db))
@@ -1190,8 +1213,10 @@ class Piwik
 			$db = Zend_Db::factory($config->database->adapter, $dbInfos);
 			$db->getConnection();
 			// see http://framework.zend.com/issues/browse/ZF-1398
-			$db->getConnection()->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
-			$db->getConnection()->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true);		
+			if ($config->database->adapter != 'PDO_PGSQL') {
+				$db->getConnection()->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
+				$db->getConnection()->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true);
+			}
 			Zend_Db_Table::setDefaultAdapter($db);
 			$db->resetConfigArray(); // we don't want this information to appear in the logs
 		}
@@ -1203,7 +1228,7 @@ class Piwik
 		Zend_Registry::get('db')->closeConnection();
 	}
 	
-	static public function getMysqlVersion()
+	static public function getSqlVersion()
 	{
 		return Zend_Registry::get('db')->fetchOne("SELECT VERSION()");
 	}
@@ -1285,7 +1310,7 @@ class Piwik
 					)
 				)
 			{
-				$db->query("DROP TABLE `$tableName`");
+				$db->query("DROP TABLE $tableName cascade");
 			}
 		}			
 	}
@@ -1323,9 +1348,12 @@ class Piwik
 
 		$tablesAlreadyInstalled = self::getTablesInstalled();
 		$tablesToCreate = self::getTablesCreateSql();
+		$indexToCreate = self::getIndexesCreateSql();
 		unset($tablesToCreate['archive_blob']);
 		unset($tablesToCreate['archive_numeric']);
-
+		unset($indexToCreate['archive_blob_index']);
+		unset($indexToCreate['archive_numeric_index']);
+		$db->query( "begin;" );
 		foreach($tablesToCreate as $tableName => $tableSql)
 		{
 			$tableName = $prefixTables . $tableName;
@@ -1334,6 +1362,15 @@ class Piwik
 				$db->query( $tableSql );
 			}
 		}
+		foreach($indexToCreate as $indexName => $indexSql)
+		{
+			$indexName = $prefixTables . $indexName;
+			if(!in_array($indexName, $tablesAlreadyInstalled))
+			{
+				$db->query( $indexSql );
+			}
+		}
+		$db->query( "commit;" );
 	}
 	
 	static public function install()

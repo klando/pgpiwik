@@ -116,9 +116,13 @@ class Piwik_Tracker_Action implements Piwik_Tracker_Action_Interface
 	 */
 	 public function record( $idVisit, $idRefererAction, $timeSpentRefererAction)
 	 {
-	 	Piwik_Tracker::getDatabase()->query("/* SHARDING_ID_SITE = ".$this->idSite." */ INSERT INTO ".Piwik_Common::prefixTable('log_link_visit_action')
+		$actionId = $this->getIdAction();
+		if (empty($actionId)) {
+			$actionId = 0;
+		}
+			Piwik_Tracker::getDatabase()->query("/* SHARDING_ID_SITE = ".$this->idSite." */ INSERT INTO ".Piwik_Common::prefixTable('log_link_visit_action')
 						." (idvisit, idaction, idaction_ref, time_spent_ref_action) VALUES (?,?,?,?)",
-					array($idVisit, $this->getIdAction(), $idRefererAction, $timeSpentRefererAction)
+					array($idVisit, $actionId, $idRefererAction, $timeSpentRefererAction)
 					);
 		
 		$this->idLinkVisitAction = Piwik_Tracker::getDatabase()->lastInsertId(); 
@@ -263,21 +267,25 @@ class Piwik_Tracker_Action implements Piwik_Tracker_Action_Interface
 		$name = $this->finalActionName;
 		$type = $this->actionType;
 		
-		$idAction = Piwik_Tracker::getDatabase()->fetch("/* SHARDING_ID_SITE = ".$this->idSite." */ 	SELECT idaction 
+		$idAction = Piwik_Tracker::getDatabase()->fetch("/* SHARDING_ID_SITE = ".$this->idSite." */ 	SELECT idaction
 							FROM ".Piwik_Common::prefixTable('log_action')
 						."  WHERE name = ? AND type = ?", 
 						array($name, $type) 
 					);
-		
+
 		// the action name has not been found, create it
 		if($idAction === false)
 		{
-			Piwik_Tracker::getDatabase()->query("/* SHARDING_ID_SITE = ".$this->idSite." */
+			$idAction = Piwik_Tracker::getDatabase()->fetch("/* SHARDING_ID_SITE = ".$this->idSite." */
 							INSERT INTO ". Piwik_Common::prefixTable('log_action'). "( name, type ) 
-							VALUES (?,?)",
+							VALUES (?,?) returning idaction",
 						array($name,$type)
 					);
-			$idAction = Piwik_Tracker::getDatabase()->lastInsertId();
+# FIXME pgsql add an exception if query fail
+			if($idAction === false) {
+				return false;
+			}
+			$idAction = $idAction['idaction'];
 		}
 		else
 		{

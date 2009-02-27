@@ -70,7 +70,7 @@ class Piwik_ArchiveProcessing_Record_Manager
 		$str = '';
 		foreach($this->records as $record)
 		{
-			$str .= $record . "<br>\n";
+			$str .= $record . "<br />\n";
 		}
 		return $str;
 	}

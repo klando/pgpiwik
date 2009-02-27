@@ -18,7 +18,7 @@ class Piwik_CoreUpdater extends Piwik_Plugin
 			'description' => 'Piwik updating mechanism',
 			'author' => 'Piwik',
 			'homepage' => 'http://piwik.org/',
-			'version' => '0.1',
+			'version' => '0.2.28',
 		);
 	}
 }
