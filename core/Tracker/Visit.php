@@ -38,7 +38,7 @@ class Piwik_Tracker_Visit implements Piwik_Tracker_Visit_Interface
 	protected $userSettingsInformation = null;
 	protected $idsite;
 	protected $visitorKnown;
-
+	
 	function __construct()
 	{
 		$idsite = Piwik_Common::getRequestVar('idsite', 0, 'int');
@@ -183,21 +183,13 @@ class Piwik_Tracker_Visit implements Piwik_Tracker_Visit_Interface
 		$serverTime 	= $this->getCurrentTimestamp();	
 		$serverDate 	= $this->getCurrentDate();	
 		
-		if($this->isVisitorKnown())
-		{
-			$idcookie = $this->visitorInfo['visitor_idcookie'];
-			$returningVisitor = 1;
-		}
-		else
-		{
-			$idcookie = $this->getVisitorUniqueId();			
-			$returningVisitor = 0;
-		}
+		$idcookie = $this->getVisitorIdcookie();
+		$returningVisitor = $this->isVisitorKnown() ? 1 : 0;
 		
 		$defaultTimeOnePageVisit = Piwik_Tracker_Config::getInstance()->Tracker['default_time_one_page_visit'];
 		
 		$userInfo = $this->getUserSettingsInformation();
-		$country = Piwik_Common::getCountry($userInfo['location_browser_lang']);	
+		$country = Piwik_Common::getCountry($userInfo['location_browser_lang'], $enableLanguageToCountryGuess = Piwik_Tracker_Config::getInstance()->Tracker['enable_language_to_country_guess']);	
 		$refererInfo = $this->getRefererInformation();
 		
 		/**
@@ -260,6 +252,25 @@ class Piwik_Tracker_Visit implements Piwik_Tracker_Visit_Interface
 		$this->visitorInfo['visit_first_action_time'] = $serverTime;
 		$this->visitorInfo['visit_last_action_time'] = $serverTime;
 	}
+	
+	/**
+	 *  Returns vistor cookie
+	 *  @return string
+	 */
+	protected function getVisitorIdcookie()
+	{
+		if($this->isVisitorKnown())
+		{
+			$idcookie = $this->visitorInfo['visitor_idcookie'];
+		}
+		else
+		{
+			$idcookie = $this->getVisitorUniqueId();			
+		}
+		
+		return $idcookie;
+	}
+	
 	
 	/**
 	 * Returns the current date in the "Y-m-d" PHP format
@@ -351,7 +362,7 @@ class Piwik_Tracker_Visit implements Piwik_Tracker_Visit_Interface
 	protected function recognizeTheVisitor()
 	{
 		$this->visitorKnown = false;
-		$this->cookie = new Piwik_Cookie( $this->getCookieName(), $this->getCookieExpire() );
+		$this->setCookie( new Piwik_Cookie( $this->getCookieName(), $this->getCookieExpire() ) );
 		
 		/*
 		 * Case the visitor has the piwik cookie.
@@ -806,5 +817,10 @@ class Piwik_Tracker_Visit implements Piwik_Tracker_Visit_Interface
 		{
 			return Piwik_Common::generateUniqId();
 		}
+	}
+	
+	protected function setCookie( $cookie )
+	{
+		$this->cookie = $cookie;
 	}
 }
