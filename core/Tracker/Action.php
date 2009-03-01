@@ -278,7 +278,7 @@ class Piwik_Tracker_Action implements Piwik_Tracker_Action_Interface
 		{
 			$idAction = Piwik_Tracker::getDatabase()->fetch("/* SHARDING_ID_SITE = ".$this->idSite." */
 							INSERT INTO ". Piwik_Common::prefixTable('log_action'). "( name, type ) 
-							VALUES (?,?) returning idaction",
+							VALUES (?,?) RETURNING idaction",
 						array($name,$type)
 					);
 # FIXME pgsql add an exception if query fail

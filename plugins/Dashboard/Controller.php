@@ -49,22 +49,17 @@ class Piwik_Dashboard_Controller extends Piwik_Controller
 	 */
 	protected function saveLayoutForUser( $login, $idDashboard, $layout)
 	{
-		$paramsBind = array($login, $idDashboard, $layout, $layout);
-		Piwik_Query('INSERT INTO '.Piwik::prefixTable('user_dashboard') .
-					' (login, iddashboard, layout)
-						VALUES (?,?,?)
-					ON DUPLICATE KEY UPDATE layout=?',
-					$paramsBind);
+                $paramsBind = array($layout, $login, $idDashboard);
+                $query = 'UPDATE '.Piwik::prefixTable('user_dashboard').'
+                                SET layout = ?
+                                WHERE login = ? AND iddashboard = ?';
+                if (!Piwik_Query$query,$paramsBind()) {
+                        $query = 'INSERT INTO '.Piwik::prefixTable('user_dashboard') .
+                                         ' (login, iddashboard, layout)
+                                                 VALUES (?,?,?)';
+                        Piwik_Query($query,$paramsBind);
+                }
 	}
-
-// 			$queryProfiling = "UPDATE ".Piwik_Common::prefixTable('log_profiling')."
-// 					SET count=count+$count, sum_time_ms=sum_time_ms+$time
-// 					WHERE query=?";
-// 			if (!$this->query($queryProfiling,array($query))) {
-// 				$queryProfiling = "INSERT INTO ".Piwik_Common::prefixTable('log_profiling')."
-// 							(query,count,sum_time_ms) VALUES (?,$count,$time)";
-// 				$this->query($queryProfiling,array($query));
-// 			}
 
 
 	/**

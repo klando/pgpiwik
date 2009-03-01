@@ -219,14 +219,15 @@ class Piwik_SitesManager_API
 		
 		$url = $urls[0];
 		$urls = array_slice($urls, 1);
-		
-		$db->insert(Piwik::prefixTable("site"), array(
-									'name' => $siteName,
-									'main_url' => $url,
-									)
-								);
-									
-		$idSite = $db->lastInsertId();
+
+# FIXME pgsql add an exception if query fail
+                $idSite = $db->fetchOne("INSERT INTO ". Piwik_Common::prefixTable('site'). " ( name, main_url )
+                                                        VALUES (?,?) RETURNING idsite",
+                                                array($siteName, $url)
+                                        );
+                if($idSite === false) {
+                       return false;
+                }
 		
 		self::insertSiteUrls($idSite, $urls);
 		
