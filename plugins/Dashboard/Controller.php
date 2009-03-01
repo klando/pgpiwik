@@ -53,7 +53,7 @@ class Piwik_Dashboard_Controller extends Piwik_Controller
                 $query = 'UPDATE '.Piwik::prefixTable('user_dashboard').'
                                 SET layout = ?
                                 WHERE login = ? AND iddashboard = ?';
-                if (!Piwik_Query$query,$paramsBind()) {
+                if (!Piwik_Query($query,$paramsBind)) {
                         $query = 'INSERT INTO '.Piwik::prefixTable('user_dashboard') .
                                          ' (login, iddashboard, layout)
                                                  VALUES (?,?,?)';
