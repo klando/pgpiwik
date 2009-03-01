@@ -257,12 +257,12 @@ class Piwik_SitesManager_API
 		
 		$db = Zend_Registry::get('db');
 		
-		$db->query("DELETE FROM ".Piwik::prefixTable("site")." 
-					WHERE idsite = ?", $idSite);
-		
 		$db->query("DELETE FROM ".Piwik::prefixTable("site_url")." 
 					WHERE idsite = ?", $idSite);
-		
+
+                $db->query("DELETE FROM ".Piwik::prefixTable("site")."
+                                        WHERE idsite = ?", $idSite);
+
 		$db->query("DELETE FROM ".Piwik::prefixTable("access")." 
 					WHERE idsite = ?", $idSite);
 		
