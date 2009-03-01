@@ -446,10 +446,11 @@ class Piwik_Tracker_Visit implements Piwik_Tracker_Visit_Interface
 		
 		$userAgent		= Piwik_Common::sanitizeInputValues(@$_SERVER['HTTP_USER_AGENT']);
 		$aBrowserInfo	= UserAgentParser::getBrowser($userAgent);
-		
-		$browserName	= $aBrowserInfo['id'] !== false ? $aBrowserInfo['id'] : 'UNK';
-		$browserVersion	= $aBrowserInfo['version'] !== false ? $aBrowserInfo['version'] : '';
-		
+
+		# the !==false does not match the NULL and we have NOT NULL in the colums, so change to !empty.
+		$browserName    = !empty($aBrowserInfo['id']) ? $aBrowserInfo['id'] : 'UNK';
+		$browserVersion = !empty($aBrowserInfo['version']) !== false ? $aBrowserInfo['version'] : '';
+
 		$os				= UserAgentParser::getOperatingSystem($userAgent);
 		$os				= $os === false ? 'UNK' : $os['id'];
 		

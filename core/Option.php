@@ -82,7 +82,7 @@ class Piwik_Option
 			return;
 		}
 		$all = Piwik_FetchAll('SELECT option_value, option_name
-								FROM `'. Piwik::prefixTable('option') . '` 
+								FROM '. Piwik::prefixTable('option') . '
 								WHERE autoload = 1');
 		foreach($all as $option)
 		{
