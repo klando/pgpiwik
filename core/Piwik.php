@@ -1188,19 +1188,7 @@ class Piwik
 		{
 			$dbInfos = $config->database->toArray();
 		}
-		if(!isset($dbInfos['password']))
-		{
-			$dbInfos['password'] = '';
-		}
 		
-		// test with the password ='][{}!3456&&^#gegq"eQ for example
-		if(substr($dbInfos['password'],0,1) == '"'
-			&& substr($dbInfos['password'],-1,1) == '"'
-			&& strlen($dbInfos['password']) >= 2 )
-		{
-			$dbInfos['password'] = substr($dbInfos['password'], 1, -1);
-		}
-		$dbInfos['password'] = htmlspecialchars_decode($dbInfos['password']);
 		$dbInfos['profiler'] = $config->Debug->enable_sql_profiler;
 		if ($config->database->adapter == 'PDO_PGSQL') {
 			unset ($dbInfos['tables_prefix']);
@@ -1292,6 +1280,8 @@ class Piwik
 	static public function createConfigObject( $pathConfigFile = null )
 	{
 		$config = new Piwik_Config($pathConfigFile);
+		Zend_Registry::set('config', $config);
+		$config->init();
 	}
 
 	static public function dropTables( $doNotDelete = array() )

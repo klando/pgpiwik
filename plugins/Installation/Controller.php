@@ -124,8 +124,6 @@ class Piwik_Installation_Controller extends Piwik_Controller
 				'port'			=> Zend_Registry::get('config')->database->port,
 			);
 			
-			$dbInfos['password'] = '"'.htmlspecialchars($form->getSubmitValue('password')).'"';
-			
 			if(($portIndex = strpos($dbInfos['host'],':')) !== false)
 			{
 				$dbInfos['port'] = substr($dbInfos['host'], $portIndex + 1 );
@@ -296,10 +294,6 @@ class Piwik_Installation_Controller extends Piwik_Controller
 		
 		if($form->validate())
 		{
-			// we setup the superuser login & password in the config that will be checked by the
-			// API authentication process
-			Zend_Registry::get('config')->superuser = $_SESSION['superuser_infos'];
-			
 			$name = urlencode($form->getSubmitValue('siteName'));
 			$url = urlencode($form->getSubmitValue('url'));
 			
@@ -367,7 +361,6 @@ class Piwik_Installation_Controller extends Piwik_Controller
 		$this->checkPreviousStepIsValid( __FUNCTION__ );
 		$this->skipThisStep( __FUNCTION__ );
 		$this->writeConfigFileFromSession();
-		
 		$_SESSION['currentStepDone'] = __FUNCTION__;		
 		$view->showNextStep = false;
 		
@@ -395,26 +388,11 @@ class Piwik_Installation_Controller extends Piwik_Controller
 		{
 			return;
 		}
-		$configFile = "; <?php exit; ?> DO NOT REMOVE THIS LINE\n";
-		$configFile .= "; file automatically generated during the piwik installation process\n";
-		
-		// super user information
-		$configFile .= "[superuser]\n";
-		foreach( $_SESSION['superuser_infos'] as $key => $value)
-		{
-			$configFile .= "$key = $value\n";
-		}
-		$configFile .= "\n";
-		
-		// database information
-		$configFile .= "[database]\n";
-		foreach($_SESSION['db_infos'] as  $key => $value)
-		{
-			$configFile .= "$key = $value\n";
-		}
-		
-		file_put_contents(Piwik_Config::getDefaultUserConfigPath(), $configFile);
+		$config = Zend_Registry::get('config');
+		$config->superuser = $_SESSION['superuser_infos'];
+		$config->database = $_SESSION['db_infos'];
 	}
+	
 	/**
 	 * The previous step is valid if it is either 
 	 * - any step before (OK to go back)
@@ -454,7 +432,7 @@ class Piwik_Installation_Controller extends Piwik_Controller
 	protected function createDbFromSessionInformation()
 	{
 		$dbInfos = $_SESSION['db_infos'];
-		
+		Zend_Registry::get('config')->disableSavingConfigurationFileUpdates();
 		Zend_Registry::get('config')->database = $dbInfos;
 		Piwik::createDatabaseObject($dbInfos);
 	}
