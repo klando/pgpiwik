@@ -21,6 +21,7 @@ class Piwik_ArchiveProcessing_Record_Blob extends Piwik_ArchiveProcessing_Record
 {
 	public $name;
 	public $value;
+	
 	function __construct( $name, $value)
 	{
 		if (Zend_Registry::get('config')->database->adapter == 'PDO_MYSQL') {
@@ -28,6 +29,7 @@ class Piwik_ArchiveProcessing_Record_Blob extends Piwik_ArchiveProcessing_Record
 		}
 		parent::__construct( $name, $value );
 	}
+	
 	public function __toString()
 	{
 		return $this->name ." = BLOB";//". gzuncompress($this->value);

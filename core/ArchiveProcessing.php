@@ -11,6 +11,8 @@
 
 require_once 'TablePartitioning.php';
 require_once 'ArchiveProcessing/Record.php';
+require_once 'ArchiveProcessing/RecordArray.php';
+require_once "ArchiveProcessing/Record/Numeric.php";
 require_once 'DataTable.php';
 
 /**
@@ -247,7 +249,6 @@ abstract class Piwik_ArchiveProcessing
 			&& $this->period->toString() == date("Y-m-d")
 			)
 		{
-			//TODO this TIMESTAMP should be a mysql NOW()!!!!
 			$this->maxTimestampArchive = time() - Zend_Registry::get('config')->General->time_before_archive_considered_outdated;
 		}
 		// either
@@ -326,11 +327,7 @@ abstract class Piwik_ArchiveProcessing
 	protected function initCompute()
 	{
 		$this->loadNextIdarchive();
-		
-		$record = new Piwik_ArchiveProcessing_Record_Numeric('done', Piwik_ArchiveProcessing::DONE_ERROR);
-		$this->insertRecord($record);
-		$record->delete();
-		
+		$this->insertNumericRecord('done', Piwik_ArchiveProcessing::DONE_ERROR);
 		$this->logTable 			= Piwik::prefixTable('log_visit');
 		$this->logVisitActionTable 	= Piwik::prefixTable('log_link_visit_action');
 		$this->logActionTable	 	= Piwik::prefixTable('log_action');
@@ -354,25 +351,8 @@ abstract class Piwik_ArchiveProcessing
 					array($this->idArchive)
 				);
 		
-		$record = new Piwik_ArchiveProcessing_Record_Numeric('done', Piwik_ArchiveProcessing::DONE_OK);
+		$this->insertNumericRecord('done', Piwik_ArchiveProcessing::DONE_OK);
 		
-		// save in the database the records
-		$records = Piwik_ArchiveProcessing_Record_Manager::getInstance()->getRecords();
-		
-		foreach($records as $record)
-		{
-			$this->insertRecord( $record);	
-		}
-		
-		// delete the records from the global manager
-		foreach($records as $record)
-		{
-			$record->delete();	
-		}
-		unset($records);
-		
-		// we delete all tables from the table register
-		Piwik_ArchiveProcessing_Record_Manager::getInstance()->deleteAll();
 		Piwik_DataTable_Manager::getInstance()->deleteAll();
 	}
 	
@@ -465,13 +445,46 @@ abstract class Piwik_ArchiveProcessing
 		$this->idArchive = $id;
 		
 	}
+
+	/**
+	 * @param string $name
+	 * @param int|float $value
+	 * @return void
+	 */
+	public function insertNumericRecord($name, $value)
+	{
+		$record = new Piwik_ArchiveProcessing_Record_Numeric($name, $value);
+		$this->insertRecord($record);
+	}
+	
+	/**
+	 * @param string $name
+	 * @param string|array of string $aValues
+	 * @return void
+	 */
+	public function insertBlobRecord($name, $value)
+	{
+		if(is_array($value))
+		{
+			$records = new Piwik_ArchiveProcessing_RecordArray($name, $value);
+			foreach($records->get() as $record)
+			{
+				$this->insertRecord($record);
+			}
+		}
+		else
+		{
+			$record = new Piwik_ArchiveProcessing_Record_Blob($name, $value);
+			$this->insertRecord($record);
+		}
+	}
 	
 	/**
 	 * Inserts a record in the right table (either NUMERIC or BLOB)
 	 *
 	 * @param Piwik_ArchiveProcessing_Record $record
 	 */
-	protected function insertRecord($record)
+	private function insertRecord($record)
 	{
 		// table to use to save the data
 		if(Piwik::isNumeric($record->value))

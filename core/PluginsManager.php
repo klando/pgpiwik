@@ -256,8 +256,15 @@ class Piwik_PluginsManager
 			throw new Exception("The plugin filename '$pluginFileName' is not a valid filename");
 		}
 		
-		$path = 'plugins/' . $pluginFileName;
+		$path = PIWIK_INCLUDE_PATH . '/plugins/' . $pluginFileName;
 
+		if(!file_exists($path))
+		{
+			throw new Exception("The plugin '$pluginName' is enabled, but the file '$path' couldn't be found.
+							To continue, please disable the plugin manually by removing the line 
+							<pre>Plugins[] = $pluginName</pre>
+							in the configuration file <code>config/config.ini.php</code>");
+		}
 		require_once $path;
 		
 		if(!class_exists($pluginClassName))
@@ -278,6 +285,10 @@ class Piwik_PluginsManager
 		$this->languageToLoad = $code;
 	}
 
+	/**
+	 * @param Piwik_Plugin $plugin
+	 * @return void
+	 */
 	public function unloadPlugin( $plugin )
 	{
 		if(!($plugin instanceof Piwik_Plugin ))
@@ -291,7 +302,7 @@ class Piwik_PluginsManager
 			$success = $this->dispatcher->removeObserver( array( $plugin, $methodToCall), $hookName );
 			if($success !== true)
 			{
-				throw new Exception("Error unloading plugin for method = $methodToCall // hook = $hookName ");
+				throw new Exception("Error unloading plugin = ".$plugin->getClassName() . ", method = $methodToCall, hook = $hookName ");
 			}
 		}
 		unset($this->loadedPlugins[$plugin->getClassName()]);
