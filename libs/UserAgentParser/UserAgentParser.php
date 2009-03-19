@@ -62,11 +62,11 @@ class UserAgentParser
 
 	// OS regex => OS ID
 	static protected $operatingSystems = array(
+						'iPod'  		 => 'IPD',
 						'iPhone'         => 'IPH',
 						'Nintendo Wii'   => 'WII',
 						'PlayStation Portable' => 'PSP',
 						'PlayStation 3'  => 'PS3',
-						'iPod'  		 => 'IPD',
 						'Android'  		 => 'AND',
 						'PalmOS'  		 => 'POS',
 						'Palm OS'  		 => 'POS',
@@ -87,7 +87,7 @@ class UserAgentParser
 						'WinNT'          => 'WNT',
 						'Windows NT'     => 'WNT',
 						'Win 9x 4.90'    => 'WME',
-						'Windows Me'     => 'WME',
+						'Windows ME'     => 'WME',
 						'Win32'          => 'W95',
 						'Win95'          => 'W95',		
 						'Windows 95'     => 'W95',

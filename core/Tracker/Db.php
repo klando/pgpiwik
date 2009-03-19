@@ -31,8 +31,14 @@ class Piwik_Tracker_Db
 	 */
 	public function __construct( $host, $username, $password, $dbname, $port, $driverName = 'pgsql')
 	{
-		$this->dsn = $driverName.":dbname=$dbname;host=$host;port=$port";
-		$this->dsn = $driverName.":dbname=$dbname host=$host port=$port user=$username password=$password";
+		if($host[0] == '/')
+		{
+			$this->dsn = $driverName.":dbname=$dbname port=$port user=$username password=$password";
+		}
+		else
+		{
+			$this->dsn = $driverName.":dbname=$dbname host=$host port=$port user=$username password=$password";
+		}
 		$this->username = $username;
 		$this->password = $password;
 	}
