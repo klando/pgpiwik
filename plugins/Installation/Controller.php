@@ -535,5 +535,5 @@ class Piwik_FakeAccess_SetSuperUser {
 	{
 		return true;
 	}
-	function loadAccess() {}
+	function reloadAccess() {}
 }

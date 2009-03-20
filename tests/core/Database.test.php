@@ -79,7 +79,7 @@ class FakeAccess
 		}
 	}
 	
-	static public function loadAccess()
+	static public function reloadAccess()
 	{}
 	
 	static public function checkUserHasAdminAccess( $idSites )

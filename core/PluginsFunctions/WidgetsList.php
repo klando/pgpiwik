@@ -11,7 +11,7 @@ function Piwik_AddWidget( $pluginName, $controllerMethodToCall, $widgetTitle )
 
 class Piwik_WidgetsList
 {
-	static protected $widgets;
+	static protected $widgets = null;
 	
 	static function get()
 	{
