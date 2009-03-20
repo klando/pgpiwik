@@ -43,6 +43,10 @@ class Test_Database extends UnitTestCase
 	
 	public function tearDown()
 	{
+		# FIXME  pgsql can not drop when already connected to the db !
+		Piwik::disconnectDatabase();
+		Piwik::createConfigObject();
+		Piwik::createDatabaseObject();
 		Piwik::dropTestDatabase();
 		Piwik::disconnectDatabase();
 	}
