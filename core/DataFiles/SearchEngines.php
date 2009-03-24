@@ -20,11 +20,14 @@
  * Url => array( SearchEngineName, VariableKeyword, [charset used by the search engine])
  * 
  * The main search engine URL has to be at the top of the list for the given search Engine.
- * 
- * You can add new search engines icons by adding the icon 
- * in the plugins/Referers/images/SearchEngines directory 
+ * You can add new search engines icons by adding the icon in the plugins/Referers/images/SearchEngines directory 
  * using the format "mainSearchEngineUrl.png". Example: www.google.com.png
- *  
+ * 
+ *  A simple example is:
+ *  "www.google.com"		=> array("Google", "q"),
+ * 
+ *  A more complicated example, with an array of possible variable names, and a custom charset:
+ *  "www.baidu.com"			=> array("Baidu", array("wd","word","kw"), "gb2312"),
  * 
  */
 if(!isset($GLOBALS['Piwik_SearchEngines'] ))
@@ -139,8 +142,8 @@ if(!isset($GLOBALS['Piwik_SearchEngines'] ))
 		"arianna.libero.it" 		=> array("Arianna", "query"),
 		
 		// Ask
-		"www.ask.com"			=> array("Ask", "ask"),
-		"web.ask.com"			=> array("Ask", "ask"),
+		"www.ask.com"			=> array("Ask", array("ask","q")),
+		"web.ask.com"			=> array("Ask", array("ask","q")),
 		"www.ask.co.uk"			=> array("Ask", "q"),
 		"uk.ask.com"			=> array("Ask", "q"),
 		"fr.ask.com"			=> array("Ask", "q"),
@@ -160,8 +163,12 @@ if(!isset($GLOBALS['Piwik_SearchEngines'] ))
 		"search.babylon.com"		=> array("Babylon (Powered by Google)","q"),
 	
 		// Baidu
-		"www.baidu.com"			=> array("Baidu", "wd"),
-		"www1.baidu.com"		=> array("Baidu", "wd"),
+		"www.baidu.com"			=> array("Baidu", array("wd","word","kw"), "gb2312"),
+		"www1.baidu.com"		=> array("Baidu", array("wd","word","kw"), "gb2312"),
+		"zhidao.baidu.com"		=> array("Baidu", array("wd","word","kw"), "gb2312"),
+		"tieba.baidu.com"		=> array("Baidu", array("wd","word","kw"), "gb2312"),
+		"news.baidu.com"		=> array("Baidu", array("wd","word","kw"), "gb2312"),
+		"web.gougou.com"		=> array("Baidu", "search"),
 		
 		// BBC
 		"search.bbc.co.uk"	        => array("BBC", "q"),
@@ -514,6 +521,13 @@ if(!isset($GLOBALS['Piwik_SearchEngines'] ))
 		"www.google.co.ma"		=> array("Google", "q"),
 		"www.google.com.kw"		=> array("Google", "q"), 
 		"www.google.com.by"		=> array("Google", "q"), 
+		"ipv6.google.com"       => array("Google", "q"),
+		"www.google.com.bh"     => array("Google", "q"),
+		"www.google.com.jm"     => array("Google", "q"),
+		"www.google.com.na"     => array("Google", "q"),
+		"www.google.ch"         => array("Google", "as_q"),
+	
+ 		
 		
 		
 		// Powered by Google 
@@ -847,7 +861,7 @@ if(!isset($GLOBALS['Piwik_SearchEngines'] ))
 		"ariadna.elmundo.es" 	=> array("El Mundo", "q"),
 		
 		// MySpace
-		"searchservice.myspace.com" => array('myspace', 'qry'),
+		"searchservice.myspace.com" => array('MySpace', 'qry'),
 	
 		// MyWebSearch
 		"kf.mysearch.myway.com" 	=> array("MyWebSearch", "searchfor"),
@@ -877,7 +891,10 @@ if(!isset($GLOBALS['Piwik_SearchEngines'] ))
 		"www.netscape.fr"		=> array("Netscape", "q"),
 		"suche.netscape.de"		=> array("Netscape", "q"),
 		"search.netscape.com"		=> array("Netscape", "query"),
-		
+
+		// Nifty
+		"search.nifty.com"              => array("Nifty", "q"),
+
 		// Nomade
 		"ie4.nomade.fr"			=> array("Nomade", "s"),
 		"rechercher.nomade.aliceadsl.fr"=> array("Nomade (AliceADSL)", "s"),
@@ -1114,10 +1131,18 @@ if(!isset($GLOBALS['Piwik_SearchEngines'] ))
 		"search.yaca.yandex.ru" 	=> array("Yandex", "text"),
 		"ya.ru" 			=> array("Yandex", "text"),
 		"www.ya.ru" 			=> array("Yandex", "text"),
+	
+		// Yandex Images
 		"images.yandex.ru"		=> array("Yandex Images","text"),
 		
+		// Yasni
+		"www.yasni.de"                  => array("Yasni", "name"),
+		"www.yasni.com"                 => array("Yasni", "name"),
+		"www.yasni.co.uk"               => array("Yasni", "name"),
+		"www.yasni.ch"                  => array("Yasni", "name"),
+		"www.yasni.at"                  => array("Yasni", "name"),
+
 		//Yellowmap
-		
 		"www.yellowmap.de"	        => array("Yellowmap", " "),
 		"yellowmap.de"			       => array("Yellowmap", " "),
 		
