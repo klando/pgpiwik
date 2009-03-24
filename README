@@ -1,4 +1,4 @@
-                 Piwik - piwik.org
+                 PgPiwik - piwik.org
 
 Description 
 ===========	
@@ -21,13 +21,15 @@ Piwik is released under the GPL v3 license, see misc/license.txt
 Requirements
 ============
 - php 5.1.3 minimum
-- mysql 4.1
+- postgresql 8.3
 - php PDO module enabled
 - OS / server independant
 
 Install 
 =======
 - Upload piwik in your webserver 
+- Create user and database
+- Execute the misc/PDO_PGSQL.sql file in your piwik database
 - Point your browser to the directory
 - Follow the steps
 - Add the given javascript code to your pages
