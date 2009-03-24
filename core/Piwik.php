@@ -652,7 +652,8 @@ class Piwik
 								option_value TEXT NOT NULL ,
 								autoload INTEGER NOT NULL DEFAULT 1
 								)
-						# FIXME idsite NULL ?
+			",
+				# FIXME idsite NULL ?
 			'archive_numeric'	=> "CREATE TABLE {$prefixTables}archive_numeric (
 									  idarchive INTEGER  NOT NULL CHECK (idarchive >= 0),
 									  name TEXT NOT NULL,
