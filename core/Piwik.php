@@ -576,7 +576,7 @@ class Piwik
 											  idaction_ref INTEGER NOT NULL,
 											  time_spent_ref_action INTEGER  NOT NULL CHECK (time_spent_ref_action >= 0)
 											)
-			",
+			",		
 		
 			'user' => "CREATE TABLE {$prefixTables}user (
 						  login TEXT NOT NULL PRIMARY KEY,
@@ -652,7 +652,6 @@ class Piwik
 								option_value TEXT NOT NULL ,
 								autoload INTEGER NOT NULL DEFAULT 1
 								)
-			",
 						# FIXME idsite NULL ?
 			'archive_numeric'	=> "CREATE TABLE {$prefixTables}archive_numeric (
 									  idarchive INTEGER  NOT NULL CHECK (idarchive >= 0),
@@ -1371,7 +1370,6 @@ class Piwik
 	static public function install()
 	{
 		Piwik_Common::mkdir(Zend_Registry::get('config')->smarty->compile_dir);
-		Piwik_Common::mkdir(Zend_Registry::get('config')->smarty->cache_dir);
 	}
 	
 	static public function uninstall()

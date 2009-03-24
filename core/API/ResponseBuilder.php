@@ -151,8 +151,7 @@ class Piwik_API_ResponseBuilder
 	 */
 	protected function getRenderedDataTable($dataTable)
 	{
-		$format = Piwik_Common::getRequestVar('format', 'php', 'string', $this->request);
-		$format = strtolower($format);
+		$format = strtolower($this->outputFormat);
 		
 		// if asked for original dataStructure
 		if($format == 'original')
@@ -183,7 +182,6 @@ class Piwik_API_ResponseBuilder
 		
 		return $renderer->render();
 	}
-	
 	
 	/**
 	 * Returns a success $message in the requested $format 
@@ -231,15 +229,6 @@ class Piwik_API_ResponseBuilder
 
 	protected function handleScalar($scalar)
 	{
-		if( $scalar === true )
-		{
-			$response = 'true';
-		}
-		elseif( $scalar === false )
-		{
-			$response = 'false';
-		}
-		
 		require_once "DataTable/Simple.php";
 		$dataTable = new Piwik_DataTable_Simple();
 		$dataTable->addRowsFromArray( array($scalar) );

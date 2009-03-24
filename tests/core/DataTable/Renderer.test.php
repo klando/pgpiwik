@@ -36,18 +36,18 @@ class Test_Piwik_DataTable_Renderer extends UnitTestCase
 	protected function getDataTableTest()
 	{
 		$arraySubTableForRow2 = array (
-			array ( Piwik_DataTable_Row::COLUMNS => array( 'label' => 'sub1', 'count' => 1) ),
-			array ( Piwik_DataTable_Row::COLUMNS => array( 'label' => 'sub2', 'count' => 2) ),
+			array ( Piwik_DataTable_Row::COLUMNS => array( 'label' => 'sub1', 'count' => 1, 'bool' => false) ),
+			array ( Piwik_DataTable_Row::COLUMNS => array( 'label' => 'sub2', 'count' => 2, 'bool' => true) ),
 		);
 		$subDataTableForRow2 = new Piwik_DataTable();
 		$subDataTableForRow2->addRowsFromArray($arraySubTableForRow2);
 
 		$subtable =
 		$array = array (
-			array ( Piwik_DataTable_Row::COLUMNS => array( 'label' => 'Google&copy;', 'goals' => array('idgoal=1' => array('revenue'=> 5.5, 'nb_conversions' => 10)), 'nb_uniq_visitors' => 11, 'nb_visits' => 11, 'nb_actions' => 17, 'max_actions' => '5', 'sum_visit_length' => 517, 'bounce_count' => 9),
-						Piwik_DataTable_Row::METADATA => array('url' => 'http://www.google.com', 'logo' => './plugins/Referers/images/searchEngines/www.google.com.png'),
+			array ( Piwik_DataTable_Row::COLUMNS => array( 'label' => 'Google&copy;', 'bool' => false, 'goals' => array('idgoal=1' => array('revenue'=> 5.5, 'nb_conversions' => 10)), 'nb_uniq_visitors' => 11, 'nb_visits' => 11, 'nb_actions' => 17, 'max_actions' => '5', 'sum_visit_length' => 517, 'bounce_count' => 9),
+						Piwik_DataTable_Row::METADATA => array('url' => 'http://www.google.com/display"and,properly', 'logo' => './plugins/Referers/images/searchEngines/www.google.com.png'),
 					 ),
-			array ( Piwik_DataTable_Row::COLUMNS => array( 'label' => 'Yahoo!', 'nb_uniq_visitors' => 15, 'nb_visits' => 151, 'nb_actions' => 147, 'max_actions' => '50', 'sum_visit_length' => 517, 'bounce_count' => 90),
+			array ( Piwik_DataTable_Row::COLUMNS => array( 'label' => 'Yahoo!', 'bool' => true, 'nb_uniq_visitors' => 15, 'nb_visits' => 151, 'nb_actions' => 147, 'max_actions' => '50', 'sum_visit_length' => 517, 'bounce_count' => 90),
 						Piwik_DataTable_Row::METADATA => array('url' => 'http://www.yahoo.com', 'logo' => './plugins/Referers/images/searchEngines/www.yahoo.com.png'),
 						Piwik_DataTable_Row::DATATABLE_ASSOCIATED => $subDataTableForRow2,
 					 )
@@ -80,7 +80,13 @@ class Test_Piwik_DataTable_Renderer extends UnitTestCase
 	protected function getDataTableSimpleOneZeroRowTest()
 	{
 		$array = array ( 'nb_visits' => 0 );
-
+		$table = new Piwik_DataTable_Simple;
+		$table->addRowsFromArray($array);
+		return $table;
+	}
+	protected function getDataTableSimpleOneFalseRowTest()
+	{
+		$array = array ( 'is_excluded' => false );
 		$table = new Piwik_DataTable_Simple;
 		$table->addRowsFromArray($array);
 		return $table;
@@ -103,6 +109,7 @@ class Test_Piwik_DataTable_Renderer extends UnitTestCase
 <result>
 	<row>
 		<label>Google©</label>
+		<bool>0</bool>
 		<goals>
 			<row idgoal=\'1\'>
 				<revenue>5.5</revenue>
@@ -115,11 +122,12 @@ class Test_Piwik_DataTable_Renderer extends UnitTestCase
 		<max_actions>5</max_actions>
 		<sum_visit_length>517</sum_visit_length>
 		<bounce_count>9</bounce_count>
-		<url>http://www.google.com</url>
+		<url>http://www.google.com/display&quot;and,properly</url>
 		<logo>./plugins/Referers/images/searchEngines/www.google.com.png</logo>
 	</row>
 	<row>
 		<label>Yahoo!</label>
+		<bool>1</bool>
 		<nb_uniq_visitors>15</nb_uniq_visitors>
 		<nb_visits>151</nb_visits>
 		<nb_actions>147</nb_actions>
@@ -133,10 +141,12 @@ class Test_Piwik_DataTable_Renderer extends UnitTestCase
 			<row>
 				<label>sub1</label>
 				<count>1</count>
+				<bool>0</bool>
 			</row>
 			<row>
 				<label>sub2</label>
 				<count>2</count>
+				<bool>1</bool>
 			</row>
 		</subtable>
 	</row>
@@ -190,18 +200,30 @@ class Test_Piwik_DataTable_Renderer extends UnitTestCase
 		$this->assertEqual( $expected,$render->render());
 	}
 
+	
+	function test_XML_test6()
+	{
+		$dataTable = $this->getDataTableSimpleOneFalseRowTest();
+	  	$render = new Piwik_DataTable_Renderer_Xml();
+	  	$render->setTable($dataTable);
+		$expected = '<?xml version="1.0" encoding="utf-8" ?>
+<result>0</result>';
+		$this->assertEqual( $expected,$render->render());
+	}
 
+	
 	function test_CSV_test1()
 	{
 		$dataTable = $this->getDataTableTest();
 	  	$render = new Piwik_DataTable_Renderer_Csv();
 	  	$render->setTable($dataTable);
 	  	$render->convertToUnicode = false;
-		$expected = 'label,goals_idgoal=1_revenue,goals_idgoal=1_nb_conversions,nb_uniq_visitors,nb_visits,nb_actions,max_actions,sum_visit_length,bounce_count,metadata_url,metadata_logo
-Google©,5.5,10,11,11,17,5,517,9,http://www.google.com,./plugins/Referers/images/searchEngines/www.google.com.png
-Yahoo!,,,15,151,147,50,517,90,http://www.yahoo.com,./plugins/Referers/images/searchEngines/www.yahoo.com.png';
+		$expected = 'label,bool,goals_idgoal=1_revenue,goals_idgoal=1_nb_conversions,nb_uniq_visitors,nb_visits,nb_actions,max_actions,sum_visit_length,bounce_count,metadata_url,metadata_logo
+Google©,0,5.5,10,11,11,17,5,517,9,"http://www.google.com/display""and,properly",./plugins/Referers/images/searchEngines/www.google.com.png
+Yahoo!,1,,,15,151,147,50,517,90,http://www.yahoo.com,./plugins/Referers/images/searchEngines/www.yahoo.com.png';
 
-		$this->assertEqual( $expected,$render->render());
+		$rendered = $render->render();
+		$this->assertEqual( $expected,$rendered);
 	}
 	function test_CSV_test2()
 	{
@@ -227,7 +249,8 @@ bounce_count,44';
 	  	$render->setTable($dataTable);
 	  	$render->convertToUnicode = false;
 		$expected = "value\n14";
-		$this->assertEqual( $expected,$render->render());
+		$rendered = $render->render();
+		$this->assertEqual( $expected,$rendered);
 	}
 
 	function test_CSV_test4()
@@ -237,7 +260,8 @@ bounce_count,44';
 	  	$render->setTable($dataTable);
 	  	$render->convertToUnicode = false;
 		$expected = 'No data available';
-		$this->assertEqual( $expected,$render->render());
+		$rendered = $render->render();
+		$this->assertEqual( $expected,$rendered);
 	}
 
 	function test_CSV_test5()
@@ -247,7 +271,18 @@ bounce_count,44';
 	  	$render->setTable($dataTable);
 	  	$render->convertToUnicode = false;
 		$expected = "value\n0";
-		$this->assertEqual( $expected,$render->render());
+		$rendered = $render->render();
+		$this->assertEqual( $expected,$rendered);
+	}
+	function test_CSV_test6()
+	{
+		$dataTable = $this->getDataTableSimpleOneFalseRowTest();
+	  	$render = new Piwik_DataTable_Renderer_Csv();
+	  	$render->setTable($dataTable);
+	  	$render->convertToUnicode = false;
+		$expected = "value\n0";
+		$rendered = $render->render();
+		$this->assertEqual( $expected,$rendered);
 	}
 
 	function test_JSON_test1()
@@ -256,7 +291,7 @@ bounce_count,44';
 	  	$render = new Piwik_DataTable_Renderer_Json();
 	  	$render->setTable($dataTable);
 	  	$render->setRenderSubTables(true);
-		$expected = '[{"label":"Google&copy;","goals":{"idgoal=1":{"revenue":5.5,"nb_conversions":10}},"nb_uniq_visitors":11,"nb_visits":11,"nb_actions":17,"max_actions":"5","sum_visit_length":517,"bounce_count":9,"url":"http:\/\/www.google.com","logo":".\/plugins\/Referers\/images\/searchEngines\/www.google.com.png"},{"label":"Yahoo!","nb_uniq_visitors":15,"nb_visits":151,"nb_actions":147,"max_actions":"50","sum_visit_length":517,"bounce_count":90,"url":"http:\/\/www.yahoo.com","logo":".\/plugins\/Referers\/images\/searchEngines\/www.yahoo.com.png","idsubdatatable":0,"subtable":[{"label":"sub1","count":1},{"label":"sub2","count":2}]}]';
+		$expected = '[{"label":"Google&copy;","bool":false,"goals":{"idgoal=1":{"revenue":5.5,"nb_conversions":10}},"nb_uniq_visitors":11,"nb_visits":11,"nb_actions":17,"max_actions":"5","sum_visit_length":517,"bounce_count":9,"url":"http:\/\/www.google.com\/display\"and,properly","logo":".\/plugins\/Referers\/images\/searchEngines\/www.google.com.png"},{"label":"Yahoo!","bool":true,"nb_uniq_visitors":15,"nb_visits":151,"nb_actions":147,"max_actions":"50","sum_visit_length":517,"bounce_count":90,"url":"http:\/\/www.yahoo.com","logo":".\/plugins\/Referers\/images\/searchEngines\/www.yahoo.com.png","idsubdatatable":0,"subtable":[{"label":"sub1","count":1,"bool":false},{"label":"sub2","count":2,"bool":true}]}]';
 		$rendered = $render->render();
 
 		$this->assertEqual( $expected,$rendered);
@@ -297,6 +332,14 @@ bounce_count,44';
 		$expected = '{"value":0}';
 		$this->assertEqual( $expected,$render->render());
 	}
+	function test_JSON_test6()
+	{
+		$dataTable = $this->getDataTableSimpleOneFalseRowTest();
+	  	$render = new Piwik_DataTable_Renderer_Json();
+	  	$render->setTable($dataTable);
+		$expected = '{"value":false}';
+		$this->assertEqual( $expected,$render->render());
+	}
 
 	function test_PHP_test1()
 	{
@@ -309,6 +352,7 @@ bounce_count,44';
 					  0 =>
 					  array (
 					    'label' => 'Google&copy;',
+					    'bool' => false,
 					    'goals' => array(
 					    	'idgoal=1' => array(
 					    		'revenue' => 5.5,
@@ -321,12 +365,13 @@ bounce_count,44';
 					    'max_actions' => '5',
 					    'sum_visit_length' => 517,
 					    'bounce_count' => 9,
-					    'url' => 'http://www.google.com',
+					    'url' => 'http://www.google.com/display"and,properly',
 					    'logo' => './plugins/Referers/images/searchEngines/www.google.com.png',
 					  ),
 					  1 =>
 					  array (
 					    'label' => 'Yahoo!',
+					    'bool' => true,
 					    'nb_uniq_visitors' => 15,
 					    'nb_visits' => 151,
 					    'nb_actions' => 147,
@@ -342,11 +387,13 @@ bounce_count,44';
 						      array (
 						        'label' => 'sub1',
 						        'count' => 1,
+						        'bool' => false,
 						      ),
 						      1 =>
 						      array (
 						        'label' => 'sub2',
 						        'count' => 2,
+						        'bool' => true,
 						      ),
 					    ),
 					  ),
@@ -391,6 +438,14 @@ bounce_count,44';
 	  	$render = new Piwik_DataTable_Renderer_Php();
 	  	$render->setTable($dataTable);
 		$expected = serialize(0);
+		$this->assertEqual( $expected,$render->render());
+	}
+	function test_PHP_test6()
+	{
+		$dataTable = $this->getDataTableSimpleOneFalseRowTest();
+	  	$render = new Piwik_DataTable_Renderer_Php();
+	  	$render->setTable($dataTable);
+		$expected = serialize(false);
 		$this->assertEqual( $expected,$render->render());
 	}
 
@@ -935,9 +990,9 @@ bounce_count,44';
 		$dataTable = $this->getDataTableArray_containsDataTableArray_simpleOneRow();
 	  	$render = new Piwik_DataTable_Renderer_Json();
 	  	$render->setTable($dataTable);
-	  	$rendered = $render->render();
 
 		$expected = '{"idSite":{"row1":14,"row2":15,"row3":[]}}';
+	  	$rendered = $render->render();
 		$this->assertEqual( $expected,$rendered);
 	}
 
@@ -953,8 +1008,10 @@ date1,Yahoo!,15,151,http://www.yahoo.com,./plugins/Referers/images/searchEngines
 date2,Google1©,110,110,http://www.google.com1,./plugins/Referers/images/searchEngines/www.google.com.png1
 date2,Yahoo!1,150,1510,http://www.yahoo.com1,./plugins/Referers/images/searchEngines/www.yahoo.com.png1';
 
-		$this->assertEqual( $expected,$render->render());
+	  	$rendered = $render->render();
+		$this->assertEqual( $expected,$rendered);
 	}
+	
 	function test_CSV_Array_test2()
 	{
 		$dataTable = $this->getDataTableSimpleArrayTest();
@@ -967,7 +1024,8 @@ row1,nb_uniq_visitors,57
 row2,max_actions,140
 row2,nb_uniq_visitors,570';
 
-		$this->assertEqual( $expected,$render->render());
+	  	$rendered = $render->render();
+		$this->assertEqual( $expected,$rendered);
 	}
 
 	function test_CSV_Array_test3()
@@ -979,7 +1037,8 @@ row2,nb_uniq_visitors,570';
 		$expected = "testKey,value
 row1,14
 row2,15";
-		$this->assertEqual( $expected,$render->render());
+	  	$rendered = $render->render();
+		$this->assertEqual( $expected,$rendered);
 	}
 
 
@@ -995,7 +1054,8 @@ idSite,date1,Yahoo!,15,151,http://www.yahoo.com,./plugins/Referers/images/search
 idSite,date2,Google1©,110,110,http://www.google.com1,./plugins/Referers/images/searchEngines/www.google.com.png1
 idSite,date2,Yahoo!1,150,1510,http://www.yahoo.com1,./plugins/Referers/images/searchEngines/www.yahoo.com.png1';
 
-		$this->assertEqual( $expected,$render->render());
+	  	$rendered = $render->render();
+		$this->assertEqual( $expected,$rendered);
 	}
 	function test_CSV_Array_isMadeOfArray_test2()
 	{
@@ -1009,7 +1069,8 @@ idSite,row1,nb_uniq_visitors,57
 idSite,row2,max_actions,140
 idSite,row2,nb_uniq_visitors,570';
 
-		$this->assertEqual( $expected,$render->render());
+	  	$rendered = $render->render();
+		$this->assertEqual( $expected,$rendered);
 	}
 
 	function test_CSV_Array_isMadeOfArray_test3()
@@ -1021,7 +1082,8 @@ idSite,row2,nb_uniq_visitors,570';
 		$expected = "parentArrayKey,testKey,value
 idSite,row1,14
 idSite,row2,15";
-		$this->assertEqual( $expected,$render->render());
+	  	$rendered = $render->render();
+		$this->assertEqual( $expected,$rendered);
 	}
 
 
