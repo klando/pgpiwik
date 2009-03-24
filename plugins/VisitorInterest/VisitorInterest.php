@@ -115,14 +115,14 @@ class Piwik_VisitorInterest extends Piwik_Plugin
 			{
 				$minGap = $gap[0];
 				$maxGap = $gap[1];
-				$gapName = "\"$minGap-$maxGap\"";
+				$gapName = '"$minGap-$maxGap"';
 				$select[] = "sum(case when visit_total_actions between $minGap and $maxGap then 1 else 0 end) as $gapName ";
 			}
 			else
 			{
 				$minGap = $gap[0];
 				$plusEncoded = urlencode('+');
-				$gapName = "\"".$minGap.$plusEncoded."\"";
+				$gapName = '"'.$minGap.$plusEncoded.'"';
 				$select[] = "sum(case when visit_total_actions > $minGap then 1 else 0 end) as $gapName ";
 			}
 		}		
@@ -141,13 +141,13 @@ class Piwik_VisitorInterest extends Piwik_Plugin
 				$minGap = $gap[0] * 60;
 				$maxGap = $gap[1] * 60;
 				
-				$gapName = "\"".$minGap."-".$maxGap."\"";
+				$gapName = '"'.$minGap."-".$maxGap.'"';
 				$select[] = "sum(case when visit_total_time between $minGap and $maxGap then 1 else 0 end) as $gapName ";
 			}
 			else
 			{
 				$minGap = $gap[0] * 60;
-				$gapName = "\"$minGap\"";
+				$gapName = '"$minGap"';
 				$select[] = "sum(case when visit_total_time > $minGap then 1 else 0 end) as $gapName ";
 			}
 		}		

@@ -576,7 +576,7 @@ class Piwik
 											  idaction_ref INTEGER NOT NULL,
 											  time_spent_ref_action INTEGER  NOT NULL CHECK (time_spent_ref_action >= 0)
 											)
-			",		
+			",
 		
 			'user' => "CREATE TABLE {$prefixTables}user (
 						  login TEXT NOT NULL PRIMARY KEY,
@@ -1140,22 +1140,20 @@ class Piwik
 			{
 				$idSiteInSql = $idSite;
 			}
-			$sql = "SHOW TABLES ";
-			if ($config->database->adapter == 'PDO_PGSQL') {
-				$sql = "SELECT c.relname  AS table_name "
-					. "FROM pg_catalog.pg_class c "
-					. "JOIN pg_catalog.pg_roles r ON r.oid = c.relowner "
-					. "LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace "
-					. "WHERE n.nspname <> 'pg_catalog' "
-					. "AND n.nspname !~ '^pg_toast' "
-					. "AND pg_catalog.pg_table_is_visible(c.oid) "
-					. "AND c.relkind = 'r' "
-					. "AND c.relname ";
-			}
+			$sql = "SELECT c.relname  AS table_name "
+				. "FROM pg_catalog.pg_class c "
+				. "JOIN pg_catalog.pg_roles r ON r.oid = c.relowner "
+				. "LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace "
+				. "WHERE n.nspname <> 'pg_catalog' "
+				. "AND n.nspname !~ '^pg_toast' "
+				. "AND pg_catalog.pg_table_is_visible(c.oid) "
+				. "AND c.relkind = 'r' "
+				. "AND c.relname "
+				. " LIKE ";
 			$allArchiveNumeric = $db->fetchCol("/* SHARDING_ID_SITE = ".$idSiteInSql." */ 
-												$sql LIKE '".$prefixTables."archive_numeric%'");
+												$sql '".$prefixTables."archive_numeric%'");
 			$allArchiveBlob = $db->fetchCol("/* SHARDING_ID_SITE = ".$idSiteInSql." */ 
-												$sql LIKE '".$prefixTables."archive_blob%'");
+												$sql '".$prefixTables."archive_blob%'");
 					
 			$allTablesReallyInstalled = array_merge($tablesInstalled, $allArchiveNumeric, $allArchiveBlob);
 			
@@ -1190,21 +1188,15 @@ class Piwik
 		}
 		
 		$dbInfos['profiler'] = $config->Debug->enable_sql_profiler;
-		if ($config->database->adapter == 'PDO_PGSQL') {
-			unset ($dbInfos['tables_prefix']);
-			unset ($dbInfos['adapter']);
-		}
+		# the following to prevent error with zend 
+		unset ($dbInfos['tables_prefix']);
+		unset ($dbInfos['adapter']);
 		$db = null;
 		Piwik_PostEvent('Reporting.createDatabase', $db);
 		if(is_null($db))
 		{
 			$db = Zend_Db::factory($config->database->adapter, $dbInfos);
 			$db->getConnection();
-			// see http://framework.zend.com/issues/browse/ZF-1398
-			if ($config->database->adapter != 'PDO_PGSQL') {
-				$db->getConnection()->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
-				$db->getConnection()->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true);
-			}
 			Zend_Db_Table::setDefaultAdapter($db);
 			$db->resetConfigArray(); // we don't want this information to appear in the logs
 		}

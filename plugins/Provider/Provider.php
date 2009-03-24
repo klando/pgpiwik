@@ -40,7 +40,6 @@ class Piwik_Provider extends Piwik_Plugin
 		);
 		return $hooks;
 	}
-	# FIXME pgsql not used ?!
 	function install()
 	{
 		// add column hostname / hostname ext in the visit table

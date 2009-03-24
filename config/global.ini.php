@@ -18,7 +18,7 @@ password		=
 dbname			=
 tables_prefix	= 
 port			= 5432
-adapter 		= PDO_PGSQL ; PDO_PGSQL or PDO_MYSQL or MYSQLI
+adapter 		= PDO_PGSQL ; 
 
 [database_tests]
 host 			= localhost
@@ -86,8 +86,8 @@ show_website_selector_in_user_interface = true
 ; PHP minimum required version (minimum requirement known to date = ->newInstanceArgs)
 minimum_php_version = 5.1.3
 
-; MySQL minimum required version
-minimum_mysql_version = 4.1
+; PgSQL minimum required version
+minimum_pgsql_version = 8.3 
 
 ; Minimum adviced memory limit in php.ini file (see memory_limit value)
 minimum_memory_limit = 128

@@ -441,9 +441,7 @@ abstract class Piwik_ArchiveProcessing
 	protected function loadNextIdarchive()
 	{
 		$db = Zend_Registry::get('db');
-		$id = $db->fetchOne("/* SHARDING_ID_SITE = ".$this->idsite." */ SELECT nextval('idarchive_seq')");
-		$this->idArchive = $id;
-		
+		$this->idArchive = $db->fetchOne("/* SHARDING_ID_SITE = ".$this->idsite." */ SELECT nextval('idarchive_seq')");
 	}
 
 	/**

@@ -15,7 +15,7 @@ port=		@database.main.port@
 username=	@database.main.username@
 password=	@database.main.password@
 dbname=		@database.main.name@
-adapter=	PDO_MYSQL
+adapter=	PDO_PGSQL
 tables_prefix=	piwik_
 
 [database_tests]
@@ -24,5 +24,5 @@ port=		@database.test.port@
 username=	@database.test.username@
 password=	@database.test.password@
 dbname=		@database.test.name@
-adapter=	PDO_MYSQL
+adapter=	PDO_PGSQL
 tables_prefix=	piwiktests_

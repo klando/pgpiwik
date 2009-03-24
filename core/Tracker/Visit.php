@@ -87,6 +87,7 @@ class Piwik_Tracker_Visit implements Piwik_Tracker_Visit_Interface
 		{
 			$someGoalsConverted = true;
 		}
+
 		// the visitor and session
 		$this->recognizeTheVisitor();
 		
@@ -267,8 +268,8 @@ class Piwik_Tracker_Visit implements Piwik_Tracker_Visit_Interface
 		
 		$fields = implode(", ", array_keys($this->visitorInfo));
 		$values = substr(str_repeat( "?,",count($this->visitorInfo)),0,-1);
+		
 		printDebug($this->visitorInfo);
-
 		Piwik_Tracker::getDatabase()->query( "INSERT INTO ".Piwik_Common::prefixTable('log_visit').
 						" ($fields) VALUES ($values)", array_values($this->visitorInfo));
 						

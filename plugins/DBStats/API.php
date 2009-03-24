@@ -37,7 +37,7 @@ class Piwik_DBStats_API
 			// before 0.2.4 there is no port specified in config file
 			$configDb['port'] = '3306';  
 		}
-
+# FIXME add an sql fonction to postgresql to fetch something similar (the hit/miss ratio, bloat, toast ...)
 		$link   = mysql_connect($configDb['host'], $configDb['username'], $configDb['password']);
 		$status = mysql_stat($link);
 		mysql_close($link);
@@ -48,6 +48,7 @@ class Piwik_DBStats_API
 	{
 		Piwik::checkUserIsSuperUser();
 		$db = Zend_Registry::get('db');
+		#FIXME pgsql
 		// http://dev.mysql.com/doc/refman/5.1/en/show-table-status.html
 		$tables = $db->fetchAll("SHOW TABLE STATUS LIKE ?", $table);
 
@@ -65,6 +66,7 @@ class Piwik_DBStats_API
 	{
 		Piwik::checkUserIsSuperUser();
 		$db = Zend_Registry::get('db');
+		#FIXME pgsql
 		// http://dev.mysql.com/doc/refman/5.1/en/show-table-status.html
 		$tablesPiwik =  Piwik::getTablesInstalled();
 		$total = array('Name' => 'Total', 'Data_length' => 0, 'Index_length' => 0, 'Rows' => 0);

@@ -18,6 +18,7 @@ class Piwik_ExampleFeedburner extends Piwik_Plugin
 		try{
 			Piwik_Query('ALTER TABLE '.Piwik::prefixTable('site'). " ADD feedburnerName TEXT DEFAULT NULL");
 		} catch(Zend_Db_Statement_Exception $e){
+			# FIXME pgsql
 			// mysql code error 1060: column already exists
 			// if there is another error we throw the exception, otherwise it is OK as we are simply reinstalling the plugin
 			if(!ereg('1060',$e->getMessage()))

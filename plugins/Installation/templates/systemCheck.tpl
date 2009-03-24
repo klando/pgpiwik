@@ -16,18 +16,16 @@
 		</td>
 	</tr>  
 	<tr>
-<!-- # FIXME pgsql -->
-		<td class="label">{'Installation_SystemCheckPdoMysql'|translate}</td>
+		<td class="label">{'Installation_SystemCheckPdoPgSql'|translate}</td>
 		<td>{if $infos.pdo_pgsql_ok}{$ok}
 		{else}{$error}
 		{/if}
 		
-		{if !$infos.pdo_mysql_ok || !$infos.pdo_ok}
+		{if !$infos.pdo_pgsql_ok || !$infos.pdo_ok}
 			<p class="error" style="width:80%">{'Installation_SystemCheckPdoError'|translate}
 			<small>
 			<br /><br />
-<!-- # FIXME pgsql -->
-			{'Installation_SystemCheckPdoHelp'|translate:"<br/><code>extension=php_pdo.dll</code><br /><code>extension=php_pdo_mysql.dll</code><br />":"<code>--with-pdo-mysql </code>":"<br/><code>extension=pdo.so</code><br /><code>extension=pdo_mysql.so</code><br />"}
+			{'Installation_SystemCheckPdoHelp'|translate:"<br/><code>extension=php_pdo.dll</code><br /><code>extension=php_pdo_pgsql.dll</code><br />":"<code>--with-pdo-pgsql </code>":"<br/><code>extension=pdo.so</code><br /><code>extension=pdo_pgsql.so</code><br />"}
 			</small>
 			</p>
 		{/if}

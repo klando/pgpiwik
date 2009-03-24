@@ -267,7 +267,7 @@ class Piwik_Tracker_Action implements Piwik_Tracker_Action_Interface
 		$name = $this->finalActionName;
 		$type = $this->actionType;
 		
-		$idAction = Piwik_Tracker::getDatabase()->fetch("/* SHARDING_ID_SITE = ".$this->idSite." */ 	SELECT idaction
+		$idAction = Piwik_Tracker::getDatabase()->fetch("/* SHARDING_ID_SITE = ".$this->idSite." */     SELECT idaction
 							FROM ".Piwik_Common::prefixTable('log_action')
 						."  WHERE name = ? AND type = ?", 
 						array($name, $type) 

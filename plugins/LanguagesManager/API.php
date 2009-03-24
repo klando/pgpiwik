@@ -118,6 +118,7 @@ class Piwik_LanguagesManager_API
 						VALUES (?,?)
 					ON DUPLICATE KEY UPDATE language=?',
 					$paramsBind);
+# FIXME pgsql
 // 			$queryProfiling = "UPDATE ".Piwik_Common::prefixTable('log_profiling')."
 // 					SET count=count+$count, sum_time_ms=sum_time_ms+$time
 // 					WHERE query=?";

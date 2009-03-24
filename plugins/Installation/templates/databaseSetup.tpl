@@ -1,10 +1,9 @@
-<h1>{'Installation_MysqlSetup'|translate}</h1>
+<h1>{'Installation_PgSqlSetup'|translate}</h1>
 
 {if isset($errorMessage)}
 	<div class="error">
 		<img src="themes/default/images/error_medium.png">
-<!-- # FIXME pgsql -->
-		{'Installation_MysqlErrorConnect'|translate}:
+		{'Installation_PgSqlErrorConnect'|translate}:
 		<br />{$errorMessage}
 		
 	</div>

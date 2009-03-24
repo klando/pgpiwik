@@ -20,7 +20,7 @@ class Piwik_Installation_FormDatabaseSetup extends Piwik_Form
 	function init()
 	{		
 		$formElements = array(
-			array('text', 'host', 'mysql server', 'value='.'localhost'),
+			array('text', 'host', 'postgresql server', 'value='.''),
 			array('text', 'username', 'login'),
 			array('password', 'password', 'password'),
 			array('text', 'dbname', 'database name'),

@@ -59,9 +59,6 @@ class Piwik_ArchiveProcessing_Day extends Piwik_ArchiveProcessing
 						AND idsite = ?
 					GROUP BY visit_server_date
 				 ";
-		if (Zend_Registry::get('config')->database->adapter == 'PDO_MYSQL') {
-			$query.= " ORDER BY NULL";
-		}
 		$row = $this->db->fetchRow($query, array($this->strDateStart,$this->idsite ) );
 		
 		if($row === false)

@@ -236,8 +236,7 @@ class Piwik_FrontController
 			
 			require_once "CoreUpdater/Controller.php";
 			$updaterController = new Piwik_CoreUpdater_Controller();
-# FIXME pgsql
-// 			$updaterController->checkForCoreAndPluginsUpdates();
+			$updaterController->checkForCoreAndPluginsUpdates();
 			
 			Piwik_PluginsManager::getInstance()->installLoadedPlugins();
 			Piwik::install();
