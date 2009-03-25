@@ -276,47 +276,6 @@ class Piwik_Tracker_Action implements Piwik_Tracker_Action_Interface
 		$url = str_replace(array("\n", "\r"), "", $url);
 		if(empty($actionName))
 		{
-			$actionName = $this->getDefaultActionName();
-		}
-		
-		$this->finalActionName = $actionName;
-	}
-	
-	/**
-	 * Sets the attribute $idAction based on $finalActionName and $actionType.
-	 * 
-	 * @see getIdAction()
-	 */
-	private function loadActionId()
-	{
-		$this->generateInfo();
-		
-		$name = $this->finalActionName;
-		$type = $this->actionType;
-		
-		$idAction = Piwik_Tracker::getDatabase()->fetch("/* SHARDING_ID_SITE = ".$this->idSite." */     SELECT idaction
-							FROM ".Piwik_Common::prefixTable('log_action')
-						."  WHERE name = ? AND type = ?", 
-						array($name, $type) 
-					);
-
-		// the action name has not been found, create it
-		if($idAction === false)
-		{
-			$idAction = Piwik_Tracker::getDatabase()->fetch("/* SHARDING_ID_SITE = ".$this->idSite." */
-							INSERT INTO ". Piwik_Common::prefixTable('log_action'). "( name, type ) 
-							VALUES (?,?) RETURNING idaction",
-						array($name,$type)
-					);
-# FIXME pgsql add an exception if query fail
-			if($idAction === false) {
-				return false;
-			}
-			$idAction = $idAction['idaction'];
-		}
-		else
-		{
-			$idAction = $idAction['idaction'];
 			$actionName = $url;
 		}
 
@@ -324,7 +283,7 @@ class Piwik_Tracker_Action implements Piwik_Tracker_Action_Interface
 			'name' => $actionName,
 			'type' => $actionType,
 			'url'  => $url,
-		);
+		);	
 	}
 }
 

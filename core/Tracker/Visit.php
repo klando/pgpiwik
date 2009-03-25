@@ -211,8 +211,8 @@ class Piwik_Tracker_Visit implements Piwik_Tracker_Visit_Interface
 								visit_total_actions = visit_total_actions + 1,
 								$sqlUpdateGoalConverted
 								visit_total_time = UNIX_TIMESTAMP(visit_last_action_time) - UNIX_TIMESTAMP(visit_first_action_time)
-							WHERE idvisit = ?"
-							AND visitor_idcookie = ?,
+							WHERE idvisit = ?
+								AND visitor_idcookie = ?",
 							array( 	$datetimeServer,
 									$actionId,
 									$this->visitorInfo['idvisit'],
@@ -665,7 +665,6 @@ class Piwik_Tracker_Visit implements Piwik_Tracker_Visit_Interface
 		{
 			throw new Exception("The Action object set in the plugin must implement the interface Piwik_Tracker_Action_Interface");
 		}
-		$action->setIdSite($this->idsite);
 		return $action;
 	}
 	

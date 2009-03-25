@@ -254,12 +254,12 @@ class Piwik_Tracker_Db
 			$count = $info['count'];
 
 			$queryProfiling = "UPDATE ".Piwik_Common::prefixTable('log_profiling')."
-					SET count=count+$count, sum_time_ms=sum_time_ms+$time
+					SET count=count+?, sum_time_ms=sum_time_ms+?
 					WHERE query=?";
-			if (!$this->query($queryProfiling,array($query))) {
+			if (!$this->query($queryProfiling,array($count,$time,$query))) {
 				$queryProfiling = "INSERT INTO ".Piwik_Common::prefixTable('log_profiling')."
-							(query,count,sum_time_ms) VALUES (?,$count,$time)";
-				$this->query($queryProfiling,array($query));
+							(count,sum_time_ms,query) VALUES (?,?,?)";
+				$this->query($queryProfiling,array($count,$time,$query));
 			}
 
 		}

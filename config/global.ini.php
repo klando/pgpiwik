@@ -15,7 +15,7 @@ password		=
 host			= 
 username		= 
 password		= 
-dbname			=
+dbname			= 
 tables_prefix	= 
 port			= 5432
 adapter 		= PDO_PGSQL ; 
@@ -238,7 +238,7 @@ Plugins[] 		= ExamplePlugin
 Plugins[]		= ExampleRssWidget
 Plugins[] 		= ExampleFeedburner
 Plugins[] 		= ExampleRssWidget
-Plugins[] 		= Provider
+Plugins[]		= Provider
 Plugins[]		= Feedback
 
 Plugins[] 		= Login
@@ -255,3 +255,4 @@ PluginsInstalled[] = Installation
 
 [Plugins_Tracker]
 Plugins_Tracker[] = Provider
+

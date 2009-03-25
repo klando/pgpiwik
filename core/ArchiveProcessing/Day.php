@@ -98,7 +98,7 @@ class Piwik_ArchiveProcessing_Day extends Piwik_ArchiveProcessing
 						FROM %s
 						WHERE period = ? 
 							AND date1 = DATE(ts_archived)
-							AND DATE(ts_archived) <> CURRENT_DATE
+							AND DATE(ts_archived) <> CURRENT_DATE()
 						";
 			
 			Zend_Registry::get('db')->query(sprintf($query, $blobTable), $this->periodId);

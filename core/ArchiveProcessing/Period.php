@@ -267,7 +267,7 @@ class Piwik_ArchiveProcessing_Period extends Piwik_ArchiveProcessing
 						FROM %s
 						WHERE period > ? 
 							AND DATE(ts_archived) <= date2
-							AND date(ts_archived) < date_sub(CURRENT_DATE, INTERVAL 1 DAY)
+							AND date(ts_archived) < date_sub(CURRENT_DATE(), INTERVAL 1 DAY)
 						";
 			
 			Zend_Registry::get('db')->query(sprintf($query, $blobTable), Piwik::$idPeriods['day']);
