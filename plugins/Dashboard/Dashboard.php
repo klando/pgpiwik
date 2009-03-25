@@ -55,10 +55,9 @@ class Piwik_Dashboard extends Piwik_Plugin
 					)  DEFAULT CHARSET=utf8 " ;
 			Piwik_Query($sql);
 		} catch(Zend_Db_Statement_Exception $e){
-			# FIXME pgsql
-			// mysql code error 1050:table already exists
+			// pgsql code error 42P07: duplicate table 
 			// see bug #153 http://dev.piwik.org/trac/ticket/153
-			if(ereg('1050',$e->getMessage()))
+			if(ereg('42P07',$e->getMessage()))
 			{
 				return;
 			}

@@ -134,7 +134,7 @@ class Piwik_Installation_Controller extends Piwik_Controller
 				try {
 					Piwik::createDatabaseObject($dbInfos);
 				} catch (Zend_Db_Adapter_Exception $e) {
-# FIXME pgsql
+# FIXME pgsql create database
 					// database not found, we try to create  it
 					if(ereg('[1049]',$e->getMessage() ))
 					{

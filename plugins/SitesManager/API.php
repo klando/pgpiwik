@@ -231,13 +231,13 @@ class Piwik_SitesManager_API
 		$url = $urls[0];
 		$urls = array_slice($urls, 1);
 
-# FIXME pgsql add an exception if query fail
                 $idSite = $db->fetchOne("INSERT INTO ". Piwik_Common::prefixTable('site'). " ( name, main_url )
                                                         VALUES (?,?) RETURNING idsite",
                                                 array($siteName, $url)
                                         );
                 if($idSite === false) {
-                       return false;
+			throw new Exception(Piwik_TranslateException("SitesManager_ExceptionAddSite"));
+			return false;
                 }
 		
 		self::insertSiteUrls($idSite, $urls);

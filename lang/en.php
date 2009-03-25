@@ -573,6 +573,7 @@ $translations = array(
 	'SitesManager_Urls' => 'URLs',
 	'SitesManager_MenuSites' => 'Sites',
 	'SitesManager_DeleteConfirm_js' => 'Are you sure you want to delete the website %s?',
+	'SitesManager_ExceptionAddSite' => 'Adding the new site failed!',
 	'SitesManager_ExceptionDeleteSite' => 'It is not possible to delete this website as it is the only registered website. Add a new website first, then delete this one.',
 	'SitesManager_ExceptionNoUrl' => 'You must specify at least one URL for the site.',
 	'SitesManager_ExceptionEmptyName' => 'The site name can\'t be empty.',
