@@ -17,7 +17,7 @@ class Test_Piwik_Common extends UnitTestCase
 	
 	public function setUp()
 	{
-		$_REQUEST = $_GET = $_POST = array();
+		$_GET = $_POST = array();
 	}
 	
 	public function tearDown()
@@ -52,6 +52,8 @@ class Test_Piwik_Common extends UnitTestCase
 			'/\/\/\/\/\/\\\http://test.com////',
 			'jmleslangues.php',
 			'http://',
+			' http://',
+			'testhttp://test.com'
 		);
 		
 		foreach($notValid as $url)
@@ -192,7 +194,7 @@ class Test_Piwik_Common extends UnitTestCase
      */
     function test_getRequestVar_emptyVarName()
     {
-    	$_REQUEST['']=1;
+    	$_GET['']=1;
     	try {
     		$test = Piwik_Common::getRequestVar('');
         	$this->fail("Exception not raised.");
@@ -221,8 +223,8 @@ class Test_Piwik_Common extends UnitTestCase
      */
     function test_getRequestVar_nodefaultNotypeWithValue()
     {
-    	$_REQUEST['test'] = 1413.431413;
-    	$this->assertEqual( Piwik_Common::getRequestVar('test'), $_REQUEST['test']);
+    	$_GET['test'] = 1413.431413;
+    	$this->assertEqual( Piwik_Common::getRequestVar('test'), $_GET['test']);
     	
     }
 	
@@ -231,11 +233,11 @@ class Test_Piwik_Common extends UnitTestCase
      */
     function test_getRequestVar_nodefaultWithtypeWithValue()
     {
-    	$_REQUEST['test'] = 1413.431413;
+    	$_GET['test'] = 1413.431413;
     	
     	try {
     		$this->assertEqual( Piwik_Common::getRequestVar('test', null, 'string'), 
-    						(string)$_REQUEST['test']);
+    						(string)$_GET['test']);
         	$this->fail("Exception not raised.");
     	}
     	catch (Exception $expected) {
@@ -266,7 +268,7 @@ class Test_Piwik_Common extends UnitTestCase
     function test_getRequestVar_withdefaultWithtypeWithValue()
     {
     	
-    	$_REQUEST['test'] = 1413.431413;
+    	$_GET['test'] = 1413.431413;
     	$this->assertEqual( Piwik_Common::getRequestVar('test', 2, 'int'), 
     						2);
     }
@@ -296,9 +298,9 @@ class Test_Piwik_Common extends UnitTestCase
      */
     function test_getRequestVar_integerdefault()
     {
-    	$_REQUEST['test'] = 1413.431413;
+    	$_GET['test'] = 1413.431413;
     	$this->assertEqual( Piwik_Common::getRequestVar('test', 45, 'int'), 45);
-    	$_REQUEST['test'] = '';
+    	$_GET['test'] = '';
     	$this->assertEqual( Piwik_Common::getRequestVar('test', 45, 'int'), 45);
     	$this->assertEqual( Piwik_Common::getRequestVar('test', 45, 'integer'), 45);
     	$this->assertEqual( Piwik_Common::getRequestVar('test', 45, 'numeric'), 45);
@@ -312,10 +314,10 @@ class Test_Piwik_Common extends UnitTestCase
      */
     function test_getRequestVar_stringdefault()
     {
-    	$_REQUEST['test'] = "1413.431413";
+    	$_GET['test'] = "1413.431413";
     	$this->assertEqual( Piwik_Common::getRequestVar('test', 45, 'int'), 45);
     	$this->assertEqual( Piwik_Common::getRequestVar('test', 45, 'string'), "1413.431413");
-    	$_REQUEST['test'] = '';
+    	$_GET['test'] = '';
     	$this->assertEqual( Piwik_Common::getRequestVar('test', 45, 'string'), '45');
     	$this->assertEqual( Piwik_Common::getRequestVar('test', "geaga", 'string'), "geaga");
     	$this->assertEqual( Piwik_Common::getRequestVar('test', "'}{}}{}{}'", 'string'), "'}{}}{}{}'");
@@ -330,14 +332,14 @@ class Test_Piwik_Common extends UnitTestCase
     function test_getRequestVar_arraydefault()
     {
     	$test = array("test", 1345524, array("gaga"));
-    	$_REQUEST['test'] = $test;
+    	$_GET['test'] = $test;
     	
     	$this->assertEqual( Piwik_Common::getRequestVar('test', array(), 'array'), $test);
     	$this->assertEqual( Piwik_Common::getRequestVar('test', 45, 'string'), "45");
     	$this->assertEqual( Piwik_Common::getRequestVar('test', array(1), 'array'), $test);
     	$this->assertEqual( Piwik_Common::getRequestVar('test', 4, 'int'), 4);
     	
-    	$_REQUEST['test'] = '';
+    	$_GET['test'] = '';
     	$this->assertEqual( Piwik_Common::getRequestVar('test', array(1), 'array'), array(1));
     	$this->assertEqual( Piwik_Common::getRequestVar('test', array(), 'array'), array());
     }
@@ -350,7 +352,7 @@ class Test_Piwik_Common extends UnitTestCase
     function test_getRequestVar_stringedNumericCastedNumeric()
     {
     	$test = "45645646";
-    	$_REQUEST['test'] = $test;
+    	$_GET['test'] = $test;
     	
     	$this->assertEqual( Piwik_Common::getRequestVar('test', 1, 'int'), 45645646);
     	$this->assertEqual( Piwik_Common::getRequestVar('test', 45, 'integer'), 45645646);
@@ -598,6 +600,9 @@ class Test_Piwik_Common extends UnitTestCase
 			'http://images.google.com/imgres?imgurl=http://www.linux-corner.info/snapshot1.png&imgrefurl=http://www.oxxus.net/blog/archives/date/2007/10/page/41/&usg=__-xYvnp1IKpRZKjRDQVhpfExMkuM=&h=781&w=937&sz=203&hl=en&start=1&tbnid=P9LqKMIbdhlg-M:&tbnh=123&tbnw=148&prev=/images%3Fq%3Dthis%2Bmy%2Bquery%2Bwith%2Bhttp://domain%2Bname%2Band%2Bstrange%2Bcharacters%2B%2526%2B%255E%2B%257C%2B%253C%253E%2B%2525%2B%2522%2B%2527%2527%2BEOL%26gbv%3D2%26hl%3Den%26sa%3DG'
 				=> array('name' => 'Google Images', 'keywords' => 'this my query with http://domain name and strange characters & ^ | <> % " \'\' eol'),
 			
+			'http://www.google.fr/search?hl=en&q=%3C%3E+%26test%3B+piwik+%26quot%3B&ei=GcXJSb-VKoKEsAPmnIjzBw&sa=X&oi=revisions_inline&ct=unquoted-query-link'
+				=> array('name' => 'Google', 'keywords' => '<> &test; piwik &quot;'),
+				
 			// testing baidu special case (several variable names possible, and custom encoding)
 			// see http://dev.piwik.org/trac/ticket/589
 			

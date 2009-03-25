@@ -156,19 +156,15 @@ class Piwik_Common
 	static function getPathAndQueryFromUrl($url)
 	{
 		$parsedUrl = parse_url( $url );
-
 		$result = '';
-
 		if(isset($parsedUrl['path']))
 		{
 			$result .= substr($parsedUrl['path'], 1);
 		}
-
 		if(isset($parsedUrl['query']))
 		{
 			$result .= '?'.$parsedUrl['query'];
 		}
-
 		return $result;
 	}
 	
@@ -380,7 +376,7 @@ class Piwik_Common
 	}
 
 	/**
-	 * Returns a sanitized variable value from the $_REQUEST superglobal.
+	 * Returns a sanitized variable value from the $_GET and $_POST superglobal.
 	 * If the variable doesn't have a value or an empty value, returns the defaultValue if specified.
 	 * If the variable doesn't have neither a value nor a default value provided, an exception is raised.
 	 *
@@ -399,7 +395,7 @@ class Piwik_Common
 	{
 		if(is_null($requestArrayToUse))
 		{
-			$requestArrayToUse = $_REQUEST;
+			$requestArrayToUse = $_GET + $_POST;
 		}
 
 		$varDefault = self::sanitizeInputValues( $varDefault );

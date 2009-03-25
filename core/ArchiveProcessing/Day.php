@@ -217,7 +217,6 @@ class Piwik_ArchiveProcessing_Day extends Piwik_ArchiveProcessing
 	static public function generateDataTable( $table )
 	{
 		$dataTableToReturn = new Piwik_DataTable;
-		
 		foreach($table as $label => $maybeDatatableRow)
 		{
 			// case the aInfo is a subtable-like array
@@ -239,7 +238,6 @@ class Piwik_ArchiveProcessing_Day extends Piwik_ArchiveProcessing
 			
 			$dataTableToReturn->addRow($row);
 		}
-		
 		return $dataTableToReturn;
 	}
 	

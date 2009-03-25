@@ -112,7 +112,7 @@ class Piwik_Tracker_Generator
 	 */
 	public function __construct()
 	{
-		$_COOKIE = $_GET = $_REQUEST = $_POST = array();
+		$_COOKIE = $_GET = $_POST = array();
 		
 		// init GET and REQUEST to the empty array
 		$this->setFakeRequest();
@@ -414,7 +414,6 @@ class Piwik_Tracker_Generator
 	{		
 		// we don't keep the previous action values 
 		// reinit them to empty string
-		$this->setCurrentRequest( Piwik_Tracker_Config::getInstance()->Tracker['download_outlink_name_var'],'');
 		$this->setCurrentRequest( Piwik_Tracker_Config::getInstance()->Tracker['download_url_var_name'],'');
 		$this->setCurrentRequest( Piwik_Tracker_Config::getInstance()->Tracker['outlink_url_var_name'],'');
 		$this->setCurrentRequest( 'action_name', '');
@@ -462,15 +461,6 @@ class Piwik_Tracker_Generator
 				
 				// add the parameter to the url
 				$this->setCurrentRequest( $GETParamToAdd , $urlValue);
-				
-				// in 50% we give a special name to the download/outlink 
-				if(mt_rand(0,1)==0)
-				{
-					$nameDownload = $this->getRandomString(6,3,'ALL');
-					
-					$this->setCurrentRequest( Piwik_Tracker_Config::getInstance()->Tracker['download_outlink_name_var'] 
-											, $nameDownload);
-				}
 			}
 			
 			// if we didn't set any campaign NOR any download click
@@ -592,7 +582,7 @@ class Piwik_Tracker_Generator
 	 */
 	protected function setFakeRequest()
 	{
-		$_REQUEST = $_GET = $this->currentget;
+		$_GET = $this->currentget;
 	}
 	
 	/**
