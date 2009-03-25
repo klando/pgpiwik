@@ -112,20 +112,14 @@ class Piwik_LanguagesManager_API
 	static public function setLanguageForUser($login, $language)
 	{
 		Piwik::checkUserIsSuperUserOrTheUser($login);
-		$paramsBind = array($login, $language, $language);
-		Piwik_Query('INSERT INTO '.Piwik::prefixTable('user_language') .
-					' (login, language)
-						VALUES (?,?)
-					ON DUPLICATE KEY UPDATE language=?',
-					$paramsBind);
-# FIXME pgsql
-// 			$queryProfiling = "UPDATE ".Piwik_Common::prefixTable('log_profiling')."
-// 					SET count=count+$count, sum_time_ms=sum_time_ms+$time
-// 					WHERE query=?";
-// 			if (!$this->query($queryProfiling,array($query))) {
-// 				$queryProfiling = "INSERT INTO ".Piwik_Common::prefixTable('log_profiling')."
-// 							(query,count,sum_time_ms) VALUES (?,$count,$time)";
-// 				$this->query($queryProfiling,array($query));
-// 			}
+		$paramsBind = array($language, $login);
+        	$query = "UPDATE ".Piwik::prefixTable('user_language')."
+                	SET language=?
+                	WHERE login=?";
+        	if (!Piwik_Query($query,array($paramsBind))) {
+            		$query = "INSERT INTO ".Piwik::prefixTable('user_language')."
+                        (language, login) VALUES (?,?)";
+            		Piwik_Query($query,array($paramsBind));
+        	}
 	}
 }
