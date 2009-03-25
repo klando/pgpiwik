@@ -1210,7 +1210,7 @@ class Piwik
 	
 	static public function getSqlVersion()
 	{
-		return Zend_Registry::get('db')->fetchOne("SELECT VERSION()");
+		return Zend_Registry::get('db')->fetchOne("show server_version");
 	}
 
 	static public function createLogObject()
