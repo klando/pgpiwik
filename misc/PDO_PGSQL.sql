@@ -23,19 +23,19 @@ CREATE OR REPLACE FUNCTION current_date() RETURNS date AS '
  ' LANGUAGE 'SQL';
 
 CREATE OR REPLACE FUNCTION concat(text,text,text,text,text) RETURNS text AS '
- $1 || $2 || $3 || $4 || $5
+SELECT $1 || $2 || $3 || $4 || $5 ;
  ' LANGUAGE 'SQL';
 
 CREATE OR REPLACE FUNCTION concat(text,text,text,text) RETURNS text AS '
- $1 || $2 || $3 || $4
+SELECT $1 || $2 || $3 || $4 ;
  ' LANGUAGE 'SQL';
 
 CREATE OR REPLACE FUNCTION concat(text,text,text) RETURNS text AS '
- $1 || $2 || $3
+SELECT $1 || $2 || $3 ;
  ' LANGUAGE 'SQL';
 
 CREATE OR REPLACE FUNCTION concat(text,text) RETURNS text AS '
- $1 || $2
+SELECT $1 || $2 ;
  ' LANGUAGE 'SQL';
 
 CREATE SEQUENCE idarchive_seq;
