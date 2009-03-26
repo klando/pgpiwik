@@ -1,6 +1,7 @@
 -- createuser -S -D -R -P piwik_user # create postgresql user 
 CREATE DATABASE piwik WITH TEMPLATE = template0 ENCODING = 'UTF8';
 ALTER DATABASE piwik OWNER TO piwik_user;
+\connect piwik_user
 
 CREATE OR REPLACE FUNCTION hour(time with time zone) RETURNS integer AS '
  SELECT
