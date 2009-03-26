@@ -447,18 +447,19 @@ abstract class Piwik_ArchiveProcessing
 	/**
 	 * @param string $name
 	 * @param int|float $value
-	 * @return void
+	 * @return Piwik_ArchiveProcessing_Record_Numeric
 	 */
 	public function insertNumericRecord($name, $value)
 	{
 		$record = new Piwik_ArchiveProcessing_Record_Numeric($name, $value);
 		$this->insertRecord($record);
+		return $record;
 	}
 	
 	/**
 	 * @param string $name
 	 * @param string|array of string $aValues
-	 * @return void
+	 * @return true
 	 */
 	public function insertBlobRecord($name, $value)
 	{
@@ -469,12 +470,11 @@ abstract class Piwik_ArchiveProcessing
 			{
 				$this->insertRecord($record);
 			}
+			return true;
 		}
-		else
-		{
-			$record = new Piwik_ArchiveProcessing_Record_Blob($name, $value);
-			$this->insertRecord($record);
-		}
+		$record = new Piwik_ArchiveProcessing_Record_Blob($name, $value);
+		$this->insertRecord($record);
+		return true;
 	}
 	
 	/**
@@ -482,7 +482,7 @@ abstract class Piwik_ArchiveProcessing
 	 *
 	 * @param Piwik_ArchiveProcessing_Record $record
 	 */
-	private function insertRecord($record)
+	protected function insertRecord($record)
 	{
 		// table to use to save the data
 		if(Piwik::isNumeric($record->value))
