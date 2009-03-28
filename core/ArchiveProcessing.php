@@ -174,13 +174,10 @@ abstract class Piwik_ArchiveProcessing
 	protected $debugAlwaysArchive = false;
 	
 	/**
-	 * Builds the archive processing object, 
-	 * Reads some configuration value from the config file
-	 *
+	 * Constructor
 	 */
 	public function __construct()
 	{
-		$this->debugAlwaysArchive = Zend_Registry::get('config')->Debug->always_archive_data;
 	}
 	
 	/**
@@ -474,6 +471,7 @@ abstract class Piwik_ArchiveProcessing
 		}
 		$record = new Piwik_ArchiveProcessing_Record_Blob($name, $value);
 		$this->insertRecord($record);
+		unset($record);
 		return true;
 	}
 	
@@ -485,7 +483,7 @@ abstract class Piwik_ArchiveProcessing
 	protected function insertRecord($record)
 	{
 		// table to use to save the data
-		if(Piwik::isNumeric($record->value))
+		if(is_numeric($record->value))
 		{
 			$table = $this->tableArchiveNumeric;
 		}
