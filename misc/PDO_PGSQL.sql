@@ -18,7 +18,7 @@ CREATE OR REPLACE FUNCTION unix_timestamp(timestamp with time zone) RETURNS inte
  ROUND(EXTRACT( EPOCH FROM ABSTIME($1) ))::int4 AS result;
  ' LANGUAGE 'SQL';
 
-CREATE OR REPLACE FUNCTION current_date() RETURNS date AS '
+CREATE OR REPLACE FUNCTION "current_date"() RETURNS date AS '
  SELECT CURRENT_DATE AS result;
  ' LANGUAGE 'SQL';
 
