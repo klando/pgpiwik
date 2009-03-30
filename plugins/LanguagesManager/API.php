@@ -116,10 +116,10 @@ class Piwik_LanguagesManager_API
         	$query = "UPDATE ".Piwik::prefixTable('user_language')."
                 	SET language=?
                 	WHERE login=?";
-        	if (!Piwik_Query($query,array($paramsBind))) {
+        	if (!Piwik_Query($query,$paramsBind)) {
             		$query = "INSERT INTO ".Piwik::prefixTable('user_language')."
                         (language, login) VALUES (?,?)";
-            		Piwik_Query($query,array($paramsBind));
+            		Piwik_Query($query,$paramsBind);
         	}
 	}
 }
