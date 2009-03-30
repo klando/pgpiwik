@@ -116,7 +116,7 @@ class Piwik
 	 */
 	static public function getJavascriptCode($idSite, $piwikUrl, $actionName = "''")
 	{	
-		$jsTag = file_get_contents( "core/Tracker/javascriptTag.tpl");
+		$jsTag = file_get_contents( PIWIK_INCLUDE_PATH . "/core/Tracker/javascriptTag.tpl");
 		$jsTag = nl2br(htmlentities($jsTag));
 		$piwikUrl = preg_match('/^(http|https):\/\/(.*)$/', $piwikUrl, $matches);
 		$piwikUrl = $matches[2];
@@ -1174,9 +1174,9 @@ class Piwik
 		Zend_Registry::get('db')->query("CREATE DATABASE ".$dbName);
 	}
 	
-	static public function dropTestDatabase()
+	static public function dropDatabase()
 	{
-		$dbName = Zend_Registry::get('config')->database_tests->dbname;
+		$dbName = Zend_Registry::get('config')->database->dbname;
 		Zend_Registry::get('db')->query("DROP DATABASE IF EXISTS " . $dbName);
 	}
 	
@@ -1360,6 +1360,15 @@ class Piwik
 			}
 		}
 		$db->query( "commit;" );
+	}
+	
+	static public function truncateAllTables()
+	{
+		$tablesAlreadyInstalled = self::getTablesInstalled($forceReload = true);
+		foreach($tablesAlreadyInstalled as $table) 
+		{
+			Zend_Registry::get('db')->query("TRUNCATE `$table`");
+		}
 	}
 	
 	static public function install()

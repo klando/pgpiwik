@@ -220,7 +220,7 @@ class Piwik_DataTable
 	 * 
 	 * @var int
 	 */
-	const MAXIMUM_DEPTH_LEVEL_ALLOWED = 20;
+	const MAXIMUM_DEPTH_LEVEL_ALLOWED = 15;
 
 	/**
 	 * Builds the DataTable, registers itself to the manager
@@ -236,14 +236,18 @@ class Piwik_DataTable
 	 */
 	public function __destruct()
 	{
+		static $depth = 0;
 		// destruct can be called several times
-		if(isset($this->rows))
+		if($depth < self::MAXIMUM_DEPTH_LEVEL_ALLOWED
+			&& isset($this->rows))
 		{
+			$depth++;
 			foreach($this->getRows() as $row) {
 				destroy($row);
 			}
 			unset($this->rows);
 			Piwik_DataTable_Manager::getInstance()->setTableDeleted($this->getId());	
+			$depth--;
 		}
 	}
 	
@@ -316,7 +320,7 @@ class Piwik_DataTable
 	}
 
 	/**
-	 * Queue a DataTable_Filter that will be applied at the end of the process 
+	 * Queue a DataTable_Filter that will be applied when applyQueuedFilters() is called.
 	 * (just before sending the datatable back to the browser (or API, etc.)
 	 *
 	 * @param string $className The class name of the filter, eg. Piwik_DataTable_Filter_Limit

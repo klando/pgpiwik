@@ -13,22 +13,30 @@ class Test_Database extends UnitTestCase
 	function __construct( $title = '')
 	{
 		parent::__construct( $title );
-		print("For EACH TEST the Database is created before and dropped at the end of the test method.<br>");
-	}
-	
-	public function setUp()
-	{
+		print("The test class extends Test_Database: the test Piwik database is created once in the constructor, and all tables are truncated at the end of EACH unit test method.<br>");
+		
 		Piwik::createConfigObject();
 		Piwik::createDatabaseObject();
 		Zend_Registry::get('config')->setTestEnvironment();	
 		Zend_Registry::get('config')->disableSavingConfigurationFileUpdates();
 		Piwik::createLogObject();
 
-		Piwik::dropTestDatabase();
+		Piwik::dropDatabase();
 		Piwik::createDatabase();
 		Piwik::disconnectDatabase();
 		Piwik::createDatabaseObject();
 		Piwik::createTables();
+	}
+	public function __destruct()
+	{
+	}
+	public function setUp()
+	{
+	}
+	
+	public function tearDown()
+	{
+		Piwik::truncateAllTables();
 	}
 	
 	public function testHelloWorld()
@@ -39,16 +47,6 @@ class Test_Database extends UnitTestCase
 	public function testHelloWorld2()
 	{
 		$this->assertTrue(true);
-	}
-	
-	public function tearDown()
-	{
-		# FIXME  pgsql can not drop when already connected to the db !
-		Piwik::disconnectDatabase();
-		Piwik::createConfigObject();
-		Piwik::createDatabaseObject();
-		Piwik::dropTestDatabase();
-		Piwik::disconnectDatabase();
 	}
 }
 
