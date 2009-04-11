@@ -1367,7 +1367,7 @@ class Piwik
 		$tablesAlreadyInstalled = self::getTablesInstalled($forceReload = true);
 		foreach($tablesAlreadyInstalled as $table) 
 		{
-			Zend_Registry::get('db')->query("TRUNCATE `$table`");
+			Zend_Registry::get('db')->query("TRUNCATE \"$table\"");
 		}
 	}
 	
