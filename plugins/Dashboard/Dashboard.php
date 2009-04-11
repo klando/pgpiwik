@@ -48,11 +48,11 @@ class Piwik_Dashboard extends Piwik_Plugin
 		// we catch the exception
 		try{
 			$sql = "CREATE TABLE ". Piwik::prefixTable('user_dashboard')." (
-					login TEXT NOT NULL REFERENCES ".Piwik::prefixTable('user')." DEFERRABLE INITIALLY DEFERRED,
+					login TEXT NOT NULL,
 					iddashboard INT NOT NULL ,
 					layout TEXT NOT NULL,
 					PRIMARY KEY ( login , iddashboard )
-					)  DEFAULT CHARSET=utf8 " ;
+					);
 			Piwik_Query($sql);
 		} catch(Zend_Db_Statement_Exception $e){
 			// pgsql code error 42P07: duplicate table 
