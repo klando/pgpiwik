@@ -52,7 +52,7 @@ class Piwik_Dashboard extends Piwik_Plugin
 					iddashboard INT NOT NULL ,
 					layout TEXT NOT NULL,
 					PRIMARY KEY ( login , iddashboard )
-					);
+					);";
 			Piwik_Query($sql);
 		} catch(Zend_Db_Statement_Exception $e){
 			// pgsql code error 42P07: duplicate table 
