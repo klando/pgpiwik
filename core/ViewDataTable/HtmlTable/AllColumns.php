@@ -23,14 +23,20 @@ class Piwik_ViewDataTable_HtmlTable_AllColumns extends Piwik_ViewDataTable_HtmlT
 	protected function postDataTableLoadedFromAPI()
 	{
 		parent::postDataTableLoadedFromAPI();
+		Piwik_Controller::setPeriodVariablesView($this);
+		$columnUniqueVisitors = false;
+		if($this->period == 'day')
+		{
+			$columnUniqueVisitors = 'nb_uniq_visitors';
+		}
 		$this->setColumnsToDisplay(array('label', 
 										'nb_visits', 
-										'nb_uniq_visitors', 
+										$columnUniqueVisitors, 
 										'nb_actions_per_visit', 
 										'avg_time_on_site', 
 										'bounce_rate'));
-		$filter = new Piwik_DataTable_Filter_ColumnCallbackReplace($this->dataTable, 'avg_time_on_site', create_function('$averageTimeOnSite', 'return Piwik::getPrettyTimeFromSeconds($averageTimeOnSite);'));
-		$filter = new Piwik_DataTable_Filter_ColumnCallbackReplace($this->dataTable, 'bounce_rate', create_function('$bounceRate', 'return $bounceRate."%";'));
+		$this->dataTable->filter('ColumnCallbackReplace', array('avg_time_on_site', create_function('$averageTimeOnSite', 'return Piwik::getPrettyTimeFromSeconds($averageTimeOnSite);')));
+		$this->dataTable->filter('ColumnCallbackReplace', array('bounce_rate', create_function('$bounceRate', 'return $bounceRate."%";')));
 		$this->setColumnTranslation('nb_actions_per_visit', Piwik_Translate('General_ColumnActionsPerVisit'));
 		$this->setColumnTranslation('avg_time_on_site', Piwik_Translate('General_ColumnAvgTimeOnSite'));
 		$this->setColumnTranslation('bounce_rate', Piwik_Translate('General_ColumnBounceRate'));

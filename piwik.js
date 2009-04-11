@@ -227,6 +227,10 @@ function _pk_click(e)
 	if( typeof source.href == 'undefined' )
 		return true;
 
+	var jsProtocol = 'javascript:';
+	if (source.href.substr(0, jsProtocol.length) == jsProtocol)
+		return true;
+
 	var sourceHostName = source.hostname.toLowerCase();
 	var sourceHref = source.href.replace(source.hostname, sourceHostName);
 

@@ -11,7 +11,6 @@
 
 
 /**
- * 
  * @package Piwik_VisitorInterest
  */
 class Piwik_VisitorInterest_API 
@@ -32,23 +31,23 @@ class Piwik_VisitorInterest_API
 		Piwik::checkUserHasViewAccess( $idSite );
 		$archive = Piwik_Archive::build($idSite, $period, $date );
 		$dataTable = $archive->getDataTable($name);
-		$filter = new Piwik_DataTable_Filter_Sort($dataTable, Piwik_Archive::INDEX_NB_VISITS);
-		$dataTable->queueFilter('Piwik_DataTable_Filter_ReplaceColumnNames');
-		$dataTable->queueFilter('Piwik_DataTable_Filter_Sort', array('label', 'asc', true));
+		$dataTable->filter('Sort',array(Piwik_Archive::INDEX_NB_VISITS));
+		$dataTable->queuefilter('ReplaceColumnNames');
+		$dataTable->queuefilter('Sort', array('label', 'asc', true));
 		return $dataTable;
 	}
 	
 	public function getNumberOfVisitsPerVisitDuration( $idSite, $period, $date )
 	{
 		$dataTable = $this->getDataTable('VisitorInterest_timeGap', $idSite, $period, $date);
-		$dataTable->queueFilter('Piwik_DataTable_Filter_ColumnCallbackReplace', array('label', 'Piwik_getDurationLabel'));
+		$dataTable->queuefilter('ColumnCallbackReplace', array('label', 'Piwik_getDurationLabel'));
 		return $dataTable;
 	}
 
 	public function getNumberOfVisitsPerPage( $idSite, $period, $date )
 	{
 		$dataTable = $this->getDataTable('VisitorInterest_pageGap', $idSite, $period, $date);
-		$dataTable->queueFilter('Piwik_DataTable_Filter_ColumnCallbackReplace', array('label', 'Piwik_getPageGapLabel'));
+		$dataTable->queuefilter('ColumnCallbackReplace', array('label', 'Piwik_getPageGapLabel'));
 		return $dataTable;
 	}
 }
@@ -73,12 +72,13 @@ function Piwik_getDurationLabel($label)
 			return sprintf($XYMin, $min, $max);
 		}
 	}
-	else
+	if(!is_numeric($label))
 	{
-		$time = intval($label) / 60;
-		$plusXMin = Piwik_Translate('VisitorInterest_PlusXMin');
-		return sprintf($plusXMin, '+' . $time);
+		return $label;
 	}
+	$time = intval($label) / 60;
+	$plusXMin = Piwik_Translate('VisitorInterest_PlusXMin');
+	return sprintf($plusXMin, '+' . $time);
 }
 
 function Piwik_getPageGapLabel($label)
@@ -103,5 +103,6 @@ function Piwik_getPageGapLabel($label)
 	{
 		return Piwik_Translate('VisitorInterest_OnePage');
 	}
+
 	return sprintf(Piwik_Translate('VisitorInterest_NPages'), $return);
 }

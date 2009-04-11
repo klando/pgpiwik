@@ -33,10 +33,9 @@ abstract class Piwik_ViewDataTable_GenerateGraphData extends Piwik_ViewDataTable
 {	
 	/**
 	 * Number of elements to display in the graph.
-	 *
 	 * @var int
 	 */
-	protected $graphLimit = 6;
+	protected $graphLimit = null;
 	
 	/**
 	 * Sets the number max of elements to display (number of pie slice, vertical bars, etc.)
@@ -67,12 +66,22 @@ abstract class Piwik_ViewDataTable_GenerateGraphData extends Piwik_ViewDataTable
 		}
 		$this->mainAlreadyExecuted = true;
 	
-		$this->setLimit(-1);
-		
-		// we load the data with the filters applied
+		// the queued filters will be manually applied later. This is to ensure that filtering using search
+		// will be done on the table before the labels are enhanced (see ReplaceColumnNames)
+		$this->disableQueuedFilters();
 		$this->loadDataTableFromAPI();
-		$offsetStartSummary = $this->getGraphLimit() - 1;
-		$this->dataTable->queueFilter('Piwik_DataTable_Filter_AddSummaryRow', array($offsetStartSummary, Piwik_Translate('General_Others'), Piwik_Archive::INDEX_NB_VISITS));
+		
+		$graphLimit = $this->getGraphLimit();
+		if(!empty($graphLimit))
+		{
+			$offsetStartSummary = $this->getGraphLimit() - 1;
+			$this->dataTable->filter('AddSummaryRow', 
+										array($offsetStartSummary, 
+										Piwik_Translate('General_Others'), 
+										Piwik_Archive::INDEX_NB_VISITS
+										)
+									);
+		}
 		$this->dataAvailable = $this->dataTable->getRowsCount() != 0;
 		
 		if(!$this->dataAvailable)
@@ -96,13 +105,10 @@ abstract class Piwik_ViewDataTable_GenerateGraphData extends Piwik_ViewDataTable
 	protected function generateDataFromDataTable()
 	{
 		$this->dataTable->applyQueuedFilters();
-		
 		// We apply a filter to the DataTable, decoding the label column (useful for keywords for example)
-		$filter = new Piwik_DataTable_Filter_ColumnCallbackReplace(
-									$this->dataTable, 
-									'label', 
-									'urldecode'
-								);
+		$this->dataTable->filter('ColumnCallbackReplace',
+									array('label','urldecode')
+							);
 		$data = array();
 		foreach($this->dataTable->getRows() as $row)
 		{
@@ -124,6 +130,4 @@ abstract class Piwik_ViewDataTable_GenerateGraphData extends Piwik_ViewDataTable
 		return $data;
 	}
 }
-
-
 

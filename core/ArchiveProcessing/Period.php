@@ -21,6 +21,14 @@
  */
 class Piwik_ArchiveProcessing_Period extends Piwik_ArchiveProcessing
 {
+	/*
+	 * Array of (column name before => column name renamed) of the columns for which sum operation is invalid. 
+	 * The summed value is not accurate and these columns will be renamed accordingly.
+	 */
+	static public $invalidSummedColumnNameToRenamedName = array(
+		Piwik_Archive::INDEX_NB_UNIQ_VISITORS => Piwik_Archive::INDEX_SUM_DAILY_NB_UNIQ_VISITORS 
+	);
+	
 	public function __construct()
 	{
 		parent::__construct();
@@ -148,6 +156,7 @@ class Piwik_ArchiveProcessing_Period extends Piwik_ArchiveProcessing
 	 * 				)
 	 */
 	public function archiveDataTable(	$aRecordName, 
+										$invalidSummedColumnNameToRenamedName = null,
 										$maximumRowsInDataTableLevelZero = null, 
 										$maximumRowsInSubDataTable = null,
 										$columnToSortByBeforeTruncation = null )
@@ -160,7 +169,7 @@ class Piwik_ArchiveProcessing_Period extends Piwik_ArchiveProcessing
 		$nameToCount = array();
 		foreach($aRecordName as $recordName)
 		{
-			$table = $this->getRecordDataTableSum($recordName);
+			$table = $this->getRecordDataTableSum($recordName, $invalidSummedColumnNameToRenamedName);
 			
 			$nameToCount[$recordName]['level0'] =  $table->getRowsCount();
 			$nameToCount[$recordName]['recursive'] =  $table->getRowsCountRecursive();
@@ -180,9 +189,10 @@ class Piwik_ArchiveProcessing_Period extends Piwik_ArchiveProcessing
 	 * The resulting DataTable is returned.
 	 *
 	 * @param string $name
+	 * @param array columns in the array (old name, new name) to be renamed as the sum operation is not valid on them (eg. nb_uniq_visitors->sum_daily_nb_uniq_visitors)
 	 * @return Piwik_DataTable
 	 */
-	protected function getRecordDataTableSum( $name )
+	protected function getRecordDataTableSum( $name, $invalidSummedColumnNameToRenamedName )
 	{
 		$table = new Piwik_DataTable;
 		foreach($this->archives as $archive)
@@ -192,6 +202,15 @@ class Piwik_ArchiveProcessing_Period extends Piwik_ArchiveProcessing
 			$archive->loadSubDataTables($name, $datatableToSum);
 			$table->addDataTable($datatableToSum);
 			$archive->freeBlob($name);
+		}
+		
+		if(is_null($invalidSummedColumnNameToRenamedName))
+		{
+			$invalidSummedColumnNameToRenamedName = self::$invalidSummedColumnNameToRenamedName;
+		}
+		foreach($invalidSummedColumnNameToRenamedName as $oldName => $newName)
+		{
+			$table->renameColumn($oldName, $newName);
 		}
 		return $table;
 	}
@@ -268,15 +287,29 @@ class Piwik_ArchiveProcessing_Period extends Piwik_ArchiveProcessing
 	{
 		parent::postCompute();
 		
-		//TODO should be done in a different asynchronous job
-		if(rand(0, 15) == 5)
+		$blobTable = $this->tableArchiveBlob->getTableName();
+		$numericTable = $this->tableArchiveNumeric->getTableName();
+		
+		// delete out of date records maximum once per day (DELETE request is costly)
+		$key = 'lastPurge_' . $blobTable;
+		$timestamp = Piwik_GetOption($key); 
+		if(!$timestamp 
+			|| $timestamp < time() - 86400 )
 		{
-			// we delete records that are now out of date
-			// in the case of a period we delete archives that were archived before the end of the period
-			// and only if they are at least 1 day old (so we don't delete archives computed today that may be stil valid) 
-			$blobTable = $this->tableArchiveBlob->getTableName();
-			$numericTable = $this->tableArchiveNumeric->getTableName();
+			// we delete out of date daily archives from table, maximum once per day
+			// those for day N that were processed on day N (means the archives are only partial as the day wasn't finished)
+			$query = "/* SHARDING_ID_SITE = ".$this->idsite." */ 	DELETE 
+						FROM %s
+						WHERE period = ? 
+							AND date1 = DATE(ts_archived)
+							AND DATE(ts_archived) <> CURRENT_DATE()
+						";
+			Zend_Registry::get('db')->query(sprintf($query, $blobTable), Piwik::$idPeriods['day']);
+			Zend_Registry::get('db')->query(sprintf($query, $numericTable), Piwik::$idPeriods['day']);
 			
+			// we delete out of date Period records (week/month/etc)
+			// we delete archives that were archived before the end of the period
+			// and only if they are at least 1 day old (so we don't delete archives computed today that may be stil valid) 
 			$query = "	DELETE 
 						FROM %s
 						WHERE period > ? 
@@ -286,6 +319,8 @@ class Piwik_ArchiveProcessing_Period extends Piwik_ArchiveProcessing
 			
 			Zend_Registry::get('db')->query(sprintf($query, $blobTable), Piwik::$idPeriods['day']);
 			Zend_Registry::get('db')->query(sprintf($query, $numericTable), Piwik::$idPeriods['day']);
+			
+			Piwik_SetOption($key, time());
 		}
 	}
 	

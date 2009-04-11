@@ -78,36 +78,6 @@ class Piwik_ArchiveProcessing_Day extends Piwik_ArchiveProcessing
 	}
 	
 	/**
-	 * Called at the end of the archiving process.
-	 * Does some cleaning job in the database.
-	 * 
-	 * @return void
-	 */
-	protected function postCompute()
-	{
-		parent::postCompute();
-		
-		//TODO should be done in a different asynchronous job
-		if(rand(0, 15) == 5)
-		{
-			// we delete out of date records
-			// = archives that for day N computed on day N (means they are only partial)
-			$blobTable = $this->tableArchiveBlob->getTableName();
-			$numericTable = $this->tableArchiveNumeric->getTableName();
-			
-			$query = "/* SHARDING_ID_SITE = ".$this->idsite." */ 	DELETE 
-						FROM %s
-						WHERE period = ? 
-							AND date1 = DATE(ts_archived)
-							AND DATE(ts_archived) <> CURRENT_DATE()
-						";
-			
-			Zend_Registry::get('db')->query(sprintf($query, $blobTable), $this->periodId);
-			Zend_Registry::get('db')->query(sprintf($query, $numericTable), $this->periodId);
-		}
-	}
-	
-	/**
 	 * Helper function that returns a DataTable containing the $select fields / value pairs.
 	 * IMPORTANT: The $select must return only one row!!
 	 * 
@@ -228,8 +198,8 @@ class Piwik_ArchiveProcessing_Day extends Piwik_ArchiveProcessing
 			{
 				$subTable = self::generateDataTable($maybeDatatableRow);
 				$row = new Piwik_DataTable_Row_DataTableSummary( $subTable );
+				$row->setColumns( array('label' => $label) + $row->getColumns());
 				$row->addSubtable($subTable);
-				$row->setColumn('label', $label);
 			}
 			// if aInfo is a simple Row we build it
 			else
