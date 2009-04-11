@@ -535,7 +535,7 @@ class Piwik
 					
 			'log_visit' => "CREATE TABLE {$prefixTables}log_visit (
 							  idvisit SERIAL PRIMARY KEY,
-							  idsite INTEGER  NOT NULL REFERENCES {$prefixTables}site DEFERRABLE INITIALLY DEFERRED,
+							  idsite INTEGER  NOT NULL,
 							  visitor_localtime TIME NOT NULL,
 							  visitor_idcookie TEXT NOT NULL,
 							  visitor_returning INTEGER NOT NULL,
@@ -592,21 +592,21 @@ class Piwik
 
 			'access' => "CREATE TABLE {$prefixTables}access (
 						  login TEXT NOT NULL,
-						  idsite INTEGER  NOT NULL REFERENCES {$prefixTables}site DEFERRABLE INITIALLY DEFERRED,
+						  idsite INTEGER  NOT NULL,
 						  access TEXT NULL,
 						  PRIMARY KEY(login, idsite)
 						)
 			",
 
 			'site_url' => "CREATE TABLE {$prefixTables}site_url (
-							  idsite INTEGER NOT NULL REFERENCES {$prefixTables}site DEFERRABLE INITIALLY DEFERRED,
+							  idsite INTEGER NOT NULL,
 							  url TEXT NOT NULL,
 							  PRIMARY KEY(idsite, url)
 						)
 			",
 
 			'goal' => "	CREATE TABLE {$prefixTables}goal (
-							  idsite INTEGER NOT NULL REFERENCES {$prefixTables}site DEFERRABLE INITIALLY DEFERRED,
+							  idsite INTEGER NOT NULL,
 							  idgoal INTEGER NOT NULL,
 							  name TEXT NOT NULL,
 							  match_attribute TEXT NOT NULL,
@@ -620,12 +620,12 @@ class Piwik
 			",
 
 			'log_conversion' => "CREATE TABLE {$prefixTables}log_conversion (
-									  idvisit INTEGER NOT NULL REFERENCES {$prefixTables}log_visit DEFERRABLE INITIALLY DEFERRED,
-									  idsite INTEGER NOT NULL REFERENCES {$prefixTables}site DEFERRABLE INITIALLY DEFERRED,
+									  idvisit INTEGER NOT NULL,
+									  idsite INTEGER NOT NULL,
 									  visitor_idcookie TEXT NOT NULL,
 									  server_time TIMESTAMP WITH TIME ZONE NOT NULL,
 									  visit_server_date DATE NOT NULL,
-									  idaction INTEGER NOT NULL REFERENCES {$prefixTables}log_action DEFERRABLE INITIALLY DEFERRED,
+									  idaction INTEGER NOT NULL,
 									  idlink_va INTEGER NOT NULL,
 									  referer_idvisit INTEGER DEFAULT NULL CHECK (referer_idvisit >= 0),
 									  referer_visit_server_date DATE DEFAULT NULL,
