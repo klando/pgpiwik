@@ -28,9 +28,9 @@ Requirements
 Install 
 =======
 - Upload piwik in your webserver
-- Become postgres user. 
-- Create postgresql user: piwik_user (example provided in the misc/PDO_PGSQL.sql file)
-- Execute the misc/PDO_PGSQL.sql file (change the piwik_user in the sql file if needed) 
+- Become postgres user. (sudo su - postgres)
+- Create postgresql user: piwik_user (example provided in the misc/PDO_PGSQL.sql file) (createuser piwik_user -S -D -R -P)
+- Execute the misc/PDO_PGSQL.sql file (change the piwik_user in the sql file if needed) (psql < misc/PDO_PGSQL.sql)
 - Point your browser to the directory
 - Follow the steps
 - Add the given javascript code to your pages
