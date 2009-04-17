@@ -155,6 +155,8 @@ class Piwik_Config
 			}
 			chdir($this->correctCwd);
 			file_put_contents($this->getDefaultUserConfigPath(), $configFile );
+			// The following chmod will perhaps not work correctly on servers with a bad OS. 
+			chmod($this->getDefaultUserConfigPath(), 0600);
 		}
 	}
 	
