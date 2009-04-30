@@ -17,27 +17,28 @@ require_once "ViewDataTable.php";
  */
 class Piwik_Dashboard_Controller extends Piwik_Controller
 {
-	function getListWidgets()
+	protected function getDashboardView($template)
 	{
-		$widgets = Piwik_GetWidgetsList();
-		$json = json_encode($widgets);
-		return $json;
+		$view = new Piwik_View($template);
+		$this->setGeneralVariablesView($view);
+		$layout = html_entity_decode($this->getLayout());
+		if(strstr($layout, '[[') == false) {
+			$layout = "'$layout'";
+		} 
+		$view->availableWidgets = json_encode(Piwik_GetWidgetsList());
+		return $view;
 	}
 	
 	public function embeddedIndex()
-	{		
-		$view = new Piwik_View('Dashboard/templates/index.tpl');
-		$this->setGeneralVariablesView($view);
-		$view->layout = $this->getLayout();
-		$view->availableWidgets = $this->getListWidgets();
+	{
+		$view = $this->getDashboardView('Dashboard/templates/index.tpl');
 		echo $view->render();
 	}
+	
 	public function index()
 	{
-		//add the header for stand-alone mode
-		$view = new Piwik_View('Dashboard/templates/header.tpl');
+		$view = $this->getDashboardView('Dashboard/templates/standalone.tpl');
 		echo $view->render();
-		$this->embeddedIndex();
 	}
 	
 	/**
