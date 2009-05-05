@@ -586,11 +586,9 @@ abstract class Piwik_ArchiveProcessing
 	protected function isArchivingDisabled()
 	{
 		static $archivingIsDisabled = null;
-		
 		if(is_null($archivingIsDisabled))
 		{
 			$archivingIsDisabled = false;
-			
 			$enableBrowserArchivingTriggering = (bool)Zend_Registry::get('config')->General->enable_browser_archiving_triggering;
 			if($enableBrowserArchivingTriggering == false)
 			{
@@ -600,7 +598,6 @@ abstract class Piwik_ArchiveProcessing
 				}
 			}
 		}
-		
 		return $archivingIsDisabled;
 	}
 }

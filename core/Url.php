@@ -47,6 +47,17 @@ class Piwik_Url
 	static public function getCurrentUrlWithoutFileName()
 	{
 		$host = self::getCurrentHost();
+		$urlDir = self::getCurrentScriptPath();
+		return $host.$urlDir;
+	}
+
+	/**
+	 * If current URL is "http://example.org/dir1/dir2/index.php?param1=value1&param2=value2"
+	 * will return "/dir1/dir2/"
+	 * @return string with trailing slash
+	 */
+	static public function getCurrentScriptPath()
+	{
 		$queryString = self::getCurrentScriptName() ;
 		
 		//add a fake letter case /test/test2/ returns /test which is not expected
@@ -57,7 +68,7 @@ class Piwik_Url
 		{
 			$urlDir .= '/';
 		}
-		return $host.$urlDir;
+		return $urlDir;
 	}
 	
 	/**
@@ -90,7 +101,7 @@ class Piwik_Url
 		}
 		return $url;
 	}
-	
+
 	/**
 	 * If current URL is "http://example.org/dir1/dir2/index.php?param1=value1&param2=value2"
 	 * will return "http://example.org"
@@ -165,14 +176,28 @@ class Piwik_Url
 	static function getCurrentQueryStringWithParametersModified( $params )
 	{
 		$urlValues = self::getArrayFromCurrentQueryString();
-
 		foreach($params as $key => $value)
 		{
 			$urlValues[$key] = $value;
 		}
-		
+		$query = self::getQueryStringFromParameters($urlValues);
+		if(strlen($query) > 0)
+		{
+			return '?'.$query;
+		}
+		return '';
+	}
+	
+	/**
+	 * Given an array of parameters name->value, returns the query string.
+	 * Also works with array values using the php array syntax for GET parameters.
+	 * @param $parameters eg. array( 'param1' => 10, 'param2' => array(1,2))
+	 * @return string eg. "param1=10&param2[]=1&param2[]=2"
+	 */
+	static public function getQueryStringFromParameters($parameters)
+	{
 		$query = '';
-		foreach($urlValues as $name => $value)
+		foreach($parameters as $name => $value)
 		{
 			if(empty($value))
 			{
@@ -191,15 +216,7 @@ class Piwik_Url
 			}
 		}
 		$query = substr($query, 0, -1);
-		
-		if(strlen($query) > 0)
-		{
-			return '?'.$query;
-		}
-		else
-		{
-			return '';
-		}
+		return $query;
 	}
 	
 	/**

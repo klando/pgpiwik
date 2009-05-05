@@ -67,7 +67,7 @@ abstract class Piwik_Controller
 	{
 		return 'index';
 	}
-	
+
 	protected $standardColumnNameToTranslation = array(
 		'label' => 'General_ColumnLabel',
 		'nb_visits' => 'General_ColumnNbVisits',
@@ -82,7 +82,7 @@ abstract class Piwik_Controller
 		'revenue_per_visit' => 'General_ColumnValuePerVisit',
 		'goals_conversion_rate' => 'General_ColumnVisitsWithConversions',
 	);
-	
+
 	/**
 	 * Given an Object implementing Piwik_iView interface, we either:
 	 * - echo the output of the rendering if fetch = false
