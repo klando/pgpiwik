@@ -252,16 +252,17 @@ class Piwik_Tracker_Db
 		{
 			$time = round($info['sum_time_ms']);
 			$count = $info['count'];
-# FIXME BUG /!\
-			$queryProfiling = "UPDATE ".Piwik_Common::prefixTable('log_profiling')."
-					SET count=count+?, sum_time_ms=sum_time_ms+?
-					WHERE query=?";
-			if (!$this->query($queryProfiling,array($count,$time,$query))) {
+			
+			try {
+				$queryProfiling = "UPDATE ".Piwik_Common::prefixTable('log_profiling')."
+						SET count=count+?, sum_time_ms=sum_time_ms+?
+						WHERE query=?";
+				$this->query($queryProfiling,array($count,$time,$query));
+			} catch(Zend_Db_Statement_Exception $e){
 				$queryProfiling = "INSERT INTO ".Piwik_Common::prefixTable('log_profiling')."
 							(count,sum_time_ms,query) VALUES (?,?,?)";
 				$this->query($queryProfiling,array($count,$time,$query));
 			}
-
 		}
 		
 		// turn back on profiling
