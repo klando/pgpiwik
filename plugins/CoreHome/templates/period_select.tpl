@@ -4,7 +4,7 @@
 <script type="text/javascript" src="plugins/CoreHome/templates/date.js"></script>
 
 <span id="periodString">
-	<span id="date"><img src='plugins/CoreHome/templates/images/more_date.gif' style="vertical-align:middle" alt="" /> {$prettyDate}</span> -&nbsp;
+	<span id="date"><img src='themes/default/images/icon-calendar.gif' style="vertical-align:middle" alt="" /> {$prettyDate}</span> -&nbsp;
 	<span id="periods"> 
 		<span id="currentPeriod">{$periodsNames.$period.singular}</span> 
 		<span id="otherPeriods">
@@ -14,5 +14,18 @@
 	<br/>
 	<span id="calendar"></span>
 </span>
+
+{literal}<script language="javascript">
+$(document).ready(function() {
+     // this will trigger to change only the period value on search query and hash string.
+     $("#otherPeriods a").bind('click',function(e) {
+        e.preventDefault();                            
+        var request_URL = $(e.target).attr("href");
+        var new_period = broadcast.getValueFromUrl('period',request_URL);
+        broadcast.propagateNewPage('period='+new_period);
+    });
+});</script>
+{/literal}
+
 <div style="clear:both"></div>
 
