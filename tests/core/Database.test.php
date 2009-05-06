@@ -48,6 +48,7 @@ class Test_Database extends UnitTestCase
 	{
 		$this->assertTrue(true);
 	}
+	
 }
 
 
