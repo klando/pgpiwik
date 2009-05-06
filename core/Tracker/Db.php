@@ -258,7 +258,7 @@ class Piwik_Tracker_Db
 						SET count=count+?, sum_time_ms=sum_time_ms+?
 						WHERE query=?";
 				$this->query($queryProfiling,array($count,$time,$query));
-			} catch(Zend_Db_Statement_Exception $e){
+			} catch(Exception $e){
 				$queryProfiling = "INSERT INTO ".Piwik_Common::prefixTable('log_profiling')."
 							(count,sum_time_ms,query) VALUES (?,?,?)";
 				$this->query($queryProfiling,array($count,$time,$query));
