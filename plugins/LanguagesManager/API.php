@@ -112,14 +112,18 @@ class Piwik_LanguagesManager_API
 	static public function setLanguageForUser($login, $language)
 	{
 		Piwik::checkUserIsSuperUserOrTheUser($login);
-		$paramsBind = array($language, $login);
-        	$query = "UPDATE ".Piwik::prefixTable('user_language')."
-                	SET language=?
-                	WHERE login=?";
-        	if (!Piwik_Query($query,$paramsBind)) {
-            		$query = "INSERT INTO ".Piwik::prefixTable('user_language')."
-                        (language, login) VALUES (?,?)";
-            		Piwik_Query($query,$paramsBind);
+
+		$table    = Piwik::prefixTable('user_language');
+
+		$dataIns  = array('language' => $language,
+				  'login'    => $login);
+
+		$dataUpd  = array('language' => $language);
+
+		$where    = 'login = ' . Zend_Registry::get('db')->quote($login);
+
+		if (!Zend_Registry::get('db')->update($table, $dataUpd, $where) {
+			Zend_Registry::get('db')->insert($table, $dataIns);
         	}
 	}
 }

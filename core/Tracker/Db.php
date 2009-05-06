@@ -252,7 +252,7 @@ class Piwik_Tracker_Db
 		{
 			$time = round($info['sum_time_ms']);
 			$count = $info['count'];
-
+# FIXME BUG /!\
 			$queryProfiling = "UPDATE ".Piwik_Common::prefixTable('log_profiling')."
 					SET count=count+?, sum_time_ms=sum_time_ms+?
 					WHERE query=?";

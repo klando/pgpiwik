@@ -61,14 +61,20 @@ class Piwik_Option
 	public function set($name, $value, $autoload = 0)
 	{
 		$autoload = (int)$autoload;
-		if (!Piwik_Query('UPDATE '. Piwik::prefixTable('option') .
-					' SET option_value = ? '.
-					' WHERE option_name = ? ',
-					array($value, $name))){
-			Piwik_Query('INSERT INTO '. Piwik::prefixTable('option') . ' (option_name, option_value, autoload) '.
-						' VALUES (?, ?, ?) ',
-						array($name, $value, $autoload));
-		}
+
+                $table    = Piwik::prefixTable('option');
+
+                $dataIns  = array('option_value' => $value,
+                                  'option_name'  => $name,
+                                  'autoload'     => $autoload);
+
+                $dataUpd  = array('option_value' => $value);
+
+                $where    = 'option_name = ' . Zend_Registry::get('db')->quote($name);
+
+                if (!Zend_Registry::get('db')->update($table, $dataUpd, $where) {
+                        Zend_Registry::get('db')->insert($table, $dataIns);
+                }
 		$this->all[$name] = $value;
 	}
 	

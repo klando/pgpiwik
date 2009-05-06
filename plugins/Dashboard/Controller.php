@@ -52,15 +52,20 @@ class Piwik_Dashboard_Controller extends Piwik_Controller
 	 */
 	protected function saveLayoutForUser( $login, $idDashboard, $layout)
 	{
-		$paramsBind = array($layout, $login, $idDashboard);
-		$query = 'UPDATE '.Piwik::prefixTable('user_dashboard').'
-				SET layout = ?
-				WHERE login = ? AND iddashboard = ?';
-		if (!Piwik_Query($query,$paramsBind)) {
-			$query = 'INSERT INTO '.Piwik::prefixTable('user_dashboard') .
-				' (layout, login, iddashboard) VALUES (?,?,?)';
-			Piwik_Query($query,$paramsBind);
-		}
+                $table   = Piwik::prefixTable('user_dashboard');
+
+                $dataIns = array('layout'      => $layout,
+				 'login'       => $login,
+				 'iddashboard' => $idDashboard);
+
+                $dataUpd = array('layout'      => $layout);
+
+                $where[] = 'login = '       . Zend_Registry::get('db')->quote($login);
+                $where[] = 'iddashboard = ' . Zend_Registry::get('db')->quote($idDashboard);
+
+                if (!Zend_Registry::get('db')->update($table, $dataUpd, $where) {
+                        Zend_Registry::get('db')->insert($table,$dataIns);
+                }
 	}
 
 

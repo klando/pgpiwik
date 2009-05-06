@@ -114,12 +114,10 @@ class Piwik_Goals_API
 	public function deleteGoal( $idSite, $idGoal )
 	{
 		Piwik::checkUserHasAdminAccess($idSite);
-		Zend_Registry::get('db')->query("UPDATE ".Piwik::prefixTable('goal')."
-										SET deleted = 1
-										WHERE idsite = ? 
-											AND idgoal = ?",
-									array($idSite, $idGoal));
-		$db->query("DELETE FROM ".Piwik::prefixTable("log_conversion")." WHERE idgoal = ?", $idGoal);
+		$where[] = 'idsite = ' . Zend_Registry::get('db')->quote($idSite);
+		$where[] = 'idgoal = ' . Zend_Registry::get('db')->quote($idGoal);
+		Zend_Registry::get('db')->update(Piwik::prefixTable('goal'),array('deleted'=>1),$where);
+		Zend_Registry::get('db')->delete(Piwik::prefixTable("log_conversion"),"idgoal=$idGoal");
 		Piwik_Common::regenerateCacheWebsiteAttributes($idSite);
 	}
 	
