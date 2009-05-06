@@ -122,7 +122,7 @@ class Piwik_LanguagesManager_API
 
 		$where    = 'login = ' . Zend_Registry::get('db')->quote($login);
 
-		if (!Zend_Registry::get('db')->update($table, $dataUpd, $where) {
+		if (!Zend_Registry::get('db')->update($table, $dataUpd, $where)) {
 			Zend_Registry::get('db')->insert($table, $dataIns);
         	}
 	}

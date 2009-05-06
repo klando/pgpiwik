@@ -72,7 +72,7 @@ class Piwik_Option
 
                 $where    = 'option_name = ' . Zend_Registry::get('db')->quote($name);
 
-                if (!Zend_Registry::get('db')->update($table, $dataUpd, $where) {
+                if (!Zend_Registry::get('db')->update($table, $dataUpd, $where)) {
                         Zend_Registry::get('db')->insert($table, $dataIns);
                 }
 		$this->all[$name] = $value;

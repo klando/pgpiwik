@@ -63,7 +63,7 @@ class Piwik_Dashboard_Controller extends Piwik_Controller
                 $where[] = 'login = '       . Zend_Registry::get('db')->quote($login);
                 $where[] = 'iddashboard = ' . Zend_Registry::get('db')->quote($idDashboard);
 
-                if (!Zend_Registry::get('db')->update($table, $dataUpd, $where) {
+                if (!Zend_Registry::get('db')->update($table, $dataUpd, $where)) {
                         Zend_Registry::get('db')->insert($table,$dataIns);
                 }
 	}
