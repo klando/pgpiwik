@@ -50,7 +50,13 @@ class Piwik_DBStats_API
 		$db = Zend_Registry::get('db');
 		#FIXME pgsql table status mysql
 		// http://dev.mysql.com/doc/refman/5.1/en/show-table-status.html
-		$tables = $db->fetchAll("SHOW TABLE STATUS LIKE ?", $table);
+		#$tables = $db->fetchAll("SHOW TABLE STATUS LIKE ?", $table);
+                $sql = 'select pg_relation_size(?) as "Data_length", ' .
+                       '(select sum(pg_relation_size(a)) as "Index_length" ' .                       '        from (select indexname as a from pg_indexes where schemaname = ? and tablename = ?) as b ' .
+                       '        ) as "Index_length", ' .
+                       '(select reltuples from pg_class where relname=?) as "Rows" ' .
+                       "'$table'" . ' as "Name"';
+                $tables = $db->fetchAll($sql, array($table, $schema, $table, $table));
 
 		if ($field == '')
 		{
