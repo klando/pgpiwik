@@ -569,7 +569,6 @@ class Piwik
 							  config_flash INTEGER NOT NULL,
 							  config_java INTEGER NOT NULL,
 							  config_director INTEGER NOT NULL,
-							  config_quicktime INTEGER NOT NULL,
 							  config_realplayer INTEGER NOT NULL,
 							  config_windowsmedia INTEGER NOT NULL,
 							  config_cookie INTEGER NOT NULL,
@@ -933,7 +932,7 @@ class Piwik
 			
 		require_once "CoreUpdater/Controller.php";
 		$updaterController = new Piwik_CoreUpdater_Controller();
-		$updaterController->runUpdaterAndExit($componentsWithUpdateFile);
+		$updaterController->runUpdaterAndExit($updater, $componentsWithUpdateFile);
 	}
 	
 	/**
