@@ -85,7 +85,7 @@ class Piwik_PluginsManager
 	 */
 	public function readPluginsDirectory()
 	{
-		$pluginsName = glob( "plugins/*", GLOB_ONLYDIR);
+		$pluginsName = glob( PIWIK_INCLUDE_PATH . "/plugins/*", GLOB_ONLYDIR);
 		$pluginsName = array_map('basename', $pluginsName);
 		return $pluginsName;
 	}
@@ -279,9 +279,12 @@ class Piwik_PluginsManager
 							<pre>Plugins[] = $pluginName</pre>
 							in the configuration file <code>config/config.ini.php</code>");
 		}
+
+		// Don't remove this.
+		// Our autoloader can't find plugins/PluginName/PluginName.php
 		require_once $path;
 		
-		if(!class_exists($pluginClassName))
+		if(!class_exists($pluginClassName, false))
 		{
 			throw new Exception("The class $pluginClassName couldn't be found in the file '$path'");
 		}
@@ -344,7 +347,7 @@ class Piwik_PluginsManager
 		try{
 			$plugin->install();
 		} catch(Exception $e) {
-			throw new Piwik_Plugin_Exception($plugin->getName(), $plugin->getClassName(), $e->getMessage());		}	
+			throw new Piwik_PluginsManager_PluginException($plugin->getName(), $plugin->getClassName(), $e->getMessage());		}	
 	}
 	
 	
@@ -379,7 +382,7 @@ class Piwik_PluginsManager
 	private function loadTranslation( $plugin, $langCode )
 	{
 		// we are certainly in Tracker mode, Zend is not loaded
-		if(!class_exists('Zend_Loader'))
+		if(!class_exists('Zend_Loader', false))
 		{
 			return ;
 		}
@@ -425,7 +428,7 @@ class Piwik_PluginsManager
 	 */
 	public function getInstalledPluginsName()
 	{
-		if(!class_exists('Zend_Registry'))
+		if(!class_exists('Zend_Registry', false))
 		{
 			throw new Exception("Not possible to list installed plugins (case Tracker module)");
 		}
@@ -477,7 +480,7 @@ class Piwik_PluginsManager
 	}
 }
 
-class Piwik_Plugin_Exception extends Exception 
+class Piwik_PluginsManager_PluginException extends Exception 
 {
 	function __construct($pluginName, $className, $message)
 	{
@@ -509,10 +512,12 @@ function Piwik_AddAction( $hookName, $function )
 class Piwik_Event_Notification extends Event_Notification
 {
 	static $showProfiler = false;
-	function increaseNotificationCount($className, $method) {
+	function increaseNotificationCount(/* $className, $method */) {
 		parent::increaseNotificationCount();
-		if(self::$showProfiler)
+		if(self::$showProfiler && func_num_args() == 2)
 		{
+			$className = func_get_arg(0);
+			$method = func_get_arg(1);
 			echo "after $className -> $method <br>";
 			echo "-"; Piwik::printTimer();
 			echo "<br>";

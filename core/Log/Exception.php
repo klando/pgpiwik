@@ -26,7 +26,7 @@ class Piwik_Log_Exception extends Piwik_Log
 		$logToFileFilename = self::ID;
 		$logToDatabaseTableName = self::ID;
 		$logToDatabaseColumnMapping = null;
-		$screenFormatter = new Piwik_Log_Formatter_Exception_ScreenFormatter;
+		$screenFormatter = new Piwik_Log_Exception_Formatter_ScreenFormatter;
 		$fileFormatter = new Piwik_Log_Formatter_FileFormatter;
 
 		parent::__construct($logToFileFilename,
@@ -44,7 +44,7 @@ class Piwik_Log_Exception extends Piwik_Log
 		$this->addWriter($writerScreen);
 	}
 
-	public function log($exception)
+	public function logEvent($exception)
 	{
 		$event = array();
 		$event['errno'] 	= $exception->getCode();
@@ -52,7 +52,8 @@ class Piwik_Log_Exception extends Piwik_Log
 		$event['errfile'] 	= $exception->getFile();
 		$event['errline'] 	= $exception->getLine();
 		$event['backtrace'] = $exception->getTraceAsString();
-		parent::log($event);
+
+		parent::log($event, Piwik_Log::CRIT);
 	}
 }
 
@@ -63,7 +64,7 @@ class Piwik_Log_Exception extends Piwik_Log
  * @package Piwik_Log
  * @subpackage Piwik_Log_Exception
  */
-class Piwik_Log_Formatter_Exception_ScreenFormatter extends Piwik_Log_Formatter_ScreenFormatter
+class Piwik_Log_Exception_Formatter_ScreenFormatter extends Piwik_Log_Formatter_ScreenFormatter
 {
 	/**
 	 * Formats data into a single line to be written by the writer.

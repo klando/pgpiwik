@@ -27,7 +27,7 @@ class Piwik_Goals_API
 	
 	static public function getGoals( $idSite )
 	{
-		$goals = Zend_Registry::get('db')->fetchAll("SELECT * 
+		$goals = Piwik_FetchAll("SELECT * 
 											FROM ".Piwik_Common::prefixTable('goal')." 
 											WHERE idsite = ?
 												AND deleted = 0", $idSite);

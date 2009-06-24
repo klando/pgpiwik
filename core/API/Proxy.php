@@ -141,7 +141,7 @@ class Piwik_API_Proxy
 			$returnedValue = call_user_func_array(array($object, $methodName), $finalParameters);
 			
 			// log the API Call
-			Zend_Registry::get('logger_api_call')->log(
+			Zend_Registry::get('logger_api_call')->logEvent(
 								$className,
 								$methodName,
 								$parameterNamesDefaultValues,
@@ -225,7 +225,7 @@ class Piwik_API_Proxy
 	private function includeApiFile($fileName)
 	{
 		$module = self::getModuleNameFromClassName($fileName);
-		$potentialPaths = array( "plugins/". $module ."/API.php", );
+		$potentialPaths = array( $module ."/API.php", );
 		
 		$found = false;
 		foreach($potentialPaths as $path)

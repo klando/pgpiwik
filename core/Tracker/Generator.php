@@ -117,8 +117,7 @@ class Piwik_Tracker_Generator
 		// init GET and REQUEST to the empty array
 		$this->setFakeRequest();
 		
-		require_once "core/Piwik.php";
-		Piwik::createConfigObject('../config/config.ini.php');
+		Piwik::createConfigObject(PIWIK_INCLUDE_PATH . '/config/config.ini.php');
 		Zend_Registry::get('config')->disableSavingConfigurationFileUpdates();
 		
 		// setup database	
@@ -304,7 +303,7 @@ class Piwik_Tracker_Generator
 		 */
 		// we load some real referers to be used by the generator
 		$referers = array();
-		require_once "misc/generateVisitsData/Referers.php";
+		require_once PIWIK_INCLUDE_PATH . "/misc/generateVisitsData/Referers.php";
 
 		$this->addParam('urlref',$referers);
 
@@ -313,8 +312,8 @@ class Piwik_Tracker_Generator
 		
 		// load some user agent and accept language
 		$userAgent = $acceptLanguages = array();
-		require_once "misc/generateVisitsData/UserAgent.php";
-		require_once "misc/generateVisitsData/AcceptLanguage.php";
+		require_once PIWIK_INCLUDE_PATH . "/misc/generateVisitsData/UserAgent.php";
+		require_once PIWIK_INCLUDE_PATH . "/misc/generateVisitsData/AcceptLanguage.php";
 		$this->userAgents=$userAgent;
 		$this->acceptLanguage=$acceptLanguages;
 	}
@@ -334,7 +333,7 @@ class Piwik_Tracker_Generator
 		{
 			if($this->reinitProfilingAtEveryRequest)
 			{
-				$all = Zend_Registry::get('db')->query('TRUNCATE TABLE '.Piwik::prefixTable('log_profiling').'' );
+				$all = Piwik_Query('TRUNCATE TABLE '.Piwik::prefixTable('log_profiling').'' );
 			}
 		}
 	}
@@ -388,11 +387,9 @@ class Piwik_Tracker_Generator
 		$this->setCurrentRequest( 's' ,$this->getRandom('s'));
 		$this->setCurrentRequest( 'fla' ,$this->getRandom01());
 		$this->setCurrentRequest( 'dir' ,$this->getRandom01());
-		$this->setCurrentRequest( 'qt' ,$this->getRandom01());
 		$this->setCurrentRequest( 'realp' ,$this->getRandom01());
 		$this->setCurrentRequest( 'pdf' ,$this->getRandom01());
 		$this->setCurrentRequest( 'wma' ,$this->getRandom01());
-		$this->setCurrentRequest( 'java' ,$this->getRandom01());
 		$this->setCurrentRequest( 'cookie',$this->getRandom01());
 
 		$_SERVER['HTTP_CLIENT_IP'] = mt_rand(0,255).".".mt_rand(0,255).".".mt_rand(0,255).".".mt_rand(0,255);

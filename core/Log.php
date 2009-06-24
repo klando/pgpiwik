@@ -44,7 +44,7 @@ abstract class Piwik_Log extends Zend_Log
 	
 	static public function dump($var)
 	{
-		Zend_Registry::get('logger_message')->log(var_export($var, true), Piwik_Log::DEBUG);
+		Zend_Registry::get('logger_message')->logEvent(var_export($var, true));
 	}
 	
 	function addWriteToFile()
@@ -85,15 +85,14 @@ abstract class Piwik_Log extends Zend_Log
 
 	/**
 	 * Log an event
-	 * Overload Zend_log::log
 	 */
-	public function log($event)
+	public function log($event, $priority)
 	{
 		// sanity checks
 		if (empty($this->_writers)) {
 			throw new Zend_Log_Exception('No writers were added');
 		}
-		
+
 		$event['timestamp'] = date('c');
 
 		// pack into event required by filters and writers

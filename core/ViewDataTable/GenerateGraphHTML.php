@@ -112,11 +112,10 @@ abstract class Piwik_ViewDataTable_GenerateGraphHTML extends Piwik_ViewDataTable
 		$width = $this->width; 
 		$height = $this->height; 
 
-		$currentPath = Piwik_Url::getCurrentScriptPath();
-		$pathToLibraryOpenChart = $currentPath . 'libs/open-flash-chart/';
-		$pathToLibrarySwfObject = $currentPath . 'libs/swfobject/';
-		
-		$url = Piwik_Url::getCurrentUrlWithoutQueryString() . $url;
+		$pathToLibraryOpenChart = 'libs/open-flash-chart/';
+		$pathToLibrarySwfObject = 'libs/swfobject/';
+	
+		$url = 'index.php' . $url;
 		// escape the & and stuff:
 		$url = urlencode($url);
 
@@ -125,42 +124,42 @@ abstract class Piwik_ViewDataTable_GenerateGraphHTML extends Piwik_ViewDataTable
 		// - Export as Image feature from Open Flash Chart
 		// - Using library for auto-enabling Flash object on IE, disabled-Javascript proof
 		$return = '
-			<div id="'. $this->chartDivId .'">
-				Displaying Graphs in Piwik requires Flash >= '.$requiredFlashVersion.'. <a target="_blank" href="misc/redirectToUrl.php?url=http://piwik.org/faq/troubleshooting/#faq_53">More information about displaying graphs in Piwik.</a>
-			</div>
+			<div><div id="'. $this->chartDivId .'">
+				Displaying Graphs in Piwik requires Flash >= '. $requiredFlashVersion .'. <a target="_blank" href="misc/redirectToUrl.php?url='. urlencode('http://piwik.org/faq/troubleshooting/#faq_53') .'">More information about displaying graphs in Piwik.</a>
+			</div></div>
 			<script type="text/javascript">
 				OFC = {};
 				OFC.jquery = {
-				    name: "jQuery",
-				    rasterize: function (src, dst) { $("#"+ dst).replaceWith(Control.OFC.image(src)) },
-				    image: function(src) { return "<img title=\'Piwik Graph\' src=\'data:image/png;base64," + $("#"+src)[0].get_img_binary() + "\' />"},
-				    popup: function(src) {
-				        var img_win = window.open("", "Charts: Export as Image")
-				        with(img_win.document) {
-				            write("<html><head><title>'.Piwik_Translate('General_ExportAsImage').'<\/title><\/head><body>" + Control.OFC.image(src) + "<br><br><p>'.htmlentities(Piwik_Translate('General_SaveImageOnYourComputer')).'</p><\/body><\/html>") }
-				     }
-				}
-				if (typeof(Control == "undefined")) {var Control = {OFC: OFC.jquery}; }
+					name: "jQuery",
+					rasterize: function (src, dst) { $("#"+ dst).replaceWith(Control.OFC.image(src)); },
+					image: function (src) { return "<img title=\'Piwik Graph\' src=\'data:image/png;base64," + $("#"+src)[0].get_img_binary() + "\' />"; },
+					popup: function (src) {
+						var img_win = window.open("", "ExportChartAsImage");
+						img_win.document.write("<html><head><title>'. Piwik_Translate('General_ExportAsImage') .'<\/title><\/head><body>" + Control.OFC.image(src) + "<br><br><p>'. htmlentities(Piwik_Translate('General_SaveImageOnYourComputer')) .'<\/p><\/body><\/html>");
+					}
+				};
+				if (typeof Control == "undefined") { var Control = {OFC: OFC.jquery}; }
+
 				// By default, right-clicking on OFC and choosing "save image locally" calls this function.
-				function save_image() { OFC.jquery.popup("'.$this->chartDivId.'"); }
-				
-					swfobject.embedSWF(
-						"'.$pathToLibraryOpenChart.'open-flash-chart.swf", 
-						"'. $this->chartDivId .'", 
-						"'. $width . '", "' . $height . '", 
-						"'.$requiredFlashVersion.'", 
-						"'.$pathToLibrarySwfObject.'expressInstall.swf", 
-						{
-							"data-file":"'.$url.'", 
-							"loading":"'.htmlspecialchars(Piwik_Translate('General_Loading')).'"
-						}, 
-						{
-							"allowScriptAccess":"sameDomain",
-							"wmode":"opaque"
-						}, 
-						{"bgcolor":"#FFFFFF"}
-					);
-				</script>';
+				function save_image() { OFC.jquery.popup("'. $this->chartDivId .'"); }
+
+				swfobject.embedSWF(
+					"'. $pathToLibraryOpenChart .'open-flash-chart.swf?piwik='. Piwik_Version::VERSION .'",
+					"'. $this->chartDivId .'",
+					"'. $width . '", "' . $height . '",
+					"'. $requiredFlashVersion .'",
+					"'. $pathToLibrarySwfObject .'expressInstall.swf",
+					{
+						"data-file":"'. $url .'",
+						"loading":"'. htmlspecialchars(Piwik_Translate('General_Loading')) .'"
+					},
+					{
+						"allowScriptAccess":"always",
+						"wmode":"opaque"
+					}, 
+					{"bgcolor":"#FFFFFF"}
+				);
+			</script>';
 		return $return;
 	}
 }

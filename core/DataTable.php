@@ -327,7 +327,7 @@ class Piwik_DataTable
 	 */
 	public function filter( $className, $parameters = array() )
 	{
-		if(!class_exists($className))
+		if(!class_exists($className, false))
 		{
 			$className = "Piwik_DataTable_Filter_" . $className;
 		}
@@ -485,6 +485,25 @@ class Piwik_DataTable
 		return $this->rows[$id];
 	}
 
+	/**
+	 * Returns a row that has the subtable ID matching the parameter
+	 * 
+	 * @param int $idSubTable
+	 * @return Piwik_DataTable_Row or false if not found
+	 */
+	public function getRowFromIdSubDataTable($idSubTable)
+	{
+		$idSubTable = (int)$idSubTable;
+		foreach($this->rows as $row)
+		{
+			if($row->getIdSubDataTable() === $idSubTable)
+			{
+				return $row;
+			}
+		}
+		return false;
+	}
+	
 	/**
 	 * Add a row to the table and rebuild the index if necessary
 	 * 
@@ -1062,7 +1081,7 @@ class Piwik_DataTable
 				{
 					if(is_array($subRow))
 					{
-						throw $e;						
+						throw $e;
 					}
 				}
 				$row = new Piwik_DataTable_Row( array( Piwik_DataTable_Row::COLUMNS => $row ) );		

@@ -1,5 +1,4 @@
 <?php
-require_once "UsersManager/API.php";
 /**
  * @package Piwik
  */
@@ -8,6 +7,11 @@ class Piwik_Login_Auth implements Piwik_Auth
 	protected $login = null;
 	protected $token_auth = null;
 	
+	public function getName()
+	{
+		return 'Login';
+	}
+
 	public function authenticate()
 	{
 		$rootLogin = Zend_Registry::get('config')->superuser->login;
@@ -25,7 +29,7 @@ class Piwik_Login_Auth implements Piwik_Auth
 			return new Piwik_Auth_Result(Piwik_Auth_Result::SUCCESS_SUPERUSER_AUTH_CODE, $rootLogin, $rootToken );
 		}
 
-		$login = Zend_Registry::get('db')->fetchOne(
+		$login = Piwik_FetchOne(
 					'SELECT login FROM '.Piwik::prefixTable('user').' WHERE token_auth = ?',
 					array($this->token_auth)
 		);

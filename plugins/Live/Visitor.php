@@ -168,10 +168,10 @@ class Piwik_Live_Visitor
 	
 	function getSearchEngineIcon()
 	{
-		$searchEngine = $this->getSearchEngineUrl();
-		if( !is_null($searchEngine) )
+		$searchEngineUrl = $this->getSearchEngineUrl();
+		if( !is_null($searchEngineUrl) )
 		{
-			return Piwik_getSearchEngineLogoFromName($searchEngine);
+			return Piwik_getSearchEngineLogoFromUrl($searchEngineUrl);
 		}
 		return null;
 	}
@@ -181,7 +181,6 @@ class Piwik_Live_Visitor
 		$plugins = array( 
 	 		'config_pdf',
 	 		'config_flash',
-	 		'config_java',
 	 		'config_director',
 	 		'config_realplayer',
 	 		'config_windowsmedia'

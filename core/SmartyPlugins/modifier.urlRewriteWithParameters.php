@@ -20,4 +20,3 @@ function smarty_modifier_urlRewriteWithParameters($parameters)
 	$url = Piwik_Url::getCurrentQueryStringWithParametersModified($parameters);
 	return htmlspecialchars($url);
 }
-

@@ -344,7 +344,7 @@ abstract class Piwik_ArchiveProcessing
 	protected function postCompute()
 	{
 		// delete the first done = ERROR 
-		Zend_Registry::get('db')->query("/* SHARDING_ID_SITE = ".$this->idsite." */ 
+		Piwik_Query("/* SHARDING_ID_SITE = ".$this->idsite." */ 
 							DELETE FROM ".$this->tableArchiveNumeric->getTableName()." 
 							WHERE idarchive = ? AND name = 'done'",
 					array($this->idArchive)
@@ -469,11 +469,12 @@ abstract class Piwik_ArchiveProcessing
 			{
 				$this->insertRecord($record);
 			}
+			destroy($records);
 			return true;
 		}
 		$record = new Piwik_ArchiveProcessing_Record_Blob($name, $value);
 		$this->insertRecord($record);
-		unset($record);
+		destroy($record);
 		return true;
 	}
 	
@@ -496,7 +497,7 @@ abstract class Piwik_ArchiveProcessing
 
 		$query = "INSERT INTO ".$table->getTableName()." (idarchive, idsite, date1, date2, period, ts_archived, name, value)
 					VALUES (?,?,?,?,?,?,?,?)";
-		Zend_Registry::get('db')->query($query, 
+		Piwik_Query($query, 
 							array(	$this->idArchive,
 									$this->idsite, 
 									$this->strDateStart, 
@@ -540,7 +541,7 @@ abstract class Piwik_ArchiveProcessing
 									OR name = 'nb_visits')
 							$timeStampWhere
 						ORDER BY ts_archived DESC";
-		$results = Zend_Registry::get('db')->fetchAll($sqlQuery, $bindSQL );
+		$results = Piwik_FetchAll($sqlQuery, $bindSQL );
 		if(empty($results))
 		{
 			return false;

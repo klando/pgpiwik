@@ -36,13 +36,26 @@ class Piwik_View implements Piwik_iView
 		{
 			$this->smarty->$key = $value;
 		}
-		
+
 		$this->smarty->template_dir = $smConf->template_dir->toArray();
+		array_walk($this->smarty->template_dir, array("Piwik_View","addPiwikPath"));
+
 		$this->smarty->plugins_dir = $smConf->plugins_dir->toArray();
+		array_walk($this->smarty->plugins_dir, array("Piwik_View","addPiwikPath"));
+
 		$this->smarty->compile_dir = $smConf->compile_dir;
+		Piwik_View::addPiwikPath($this->smarty->compile_dir, null);
+
 		$this->smarty->cache_dir = $smConf->cache_dir;
-		
-		$this->smarty->load_filter('output','trimwhitespace');
+		Piwik_View::addPiwikPath($this->smarty->cache_dir, null);
+
+		$this->smarty->error_reporting = $smConf->debugging;
+		$this->smarty->error_reporting = $smConf->error_reporting;
+
+		$this->smarty->assign('tag', 'piwik=' . Piwik_Version::VERSION);
+		$this->smarty->load_filter('output', 'cachebuster');
+
+		$this->smarty->load_filter('output', 'trimwhitespace');
 		
 		// global value accessible to all templates: the piwik base URL for the current request
 		$this->piwikUrl = Piwik_Url::getCurrentUrlWithoutFileName();
@@ -93,7 +106,8 @@ class Piwik_View implements Piwik_iView
 			$this->userIsSuperUser = Piwik::isUserIsSuperUser();
 			$this->piwik_version = Piwik_Version::VERSION;
 			$this->latest_version_available = Piwik_UpdateCheck::isNewestVersionAvailable();
-			
+
+			$this->loginModule = Zend_Registry::get('auth')->getName();
 		} catch(Exception $e) {
 			// can fail, for example at installation (no plugin loaded yet)		
 		}
@@ -141,7 +155,13 @@ class Piwik_View implements Piwik_iView
 		}
 	}
 
-/*	public function isCached($template)
+	public function clearCompiledTemplates()
+	{
+		$this->smarty->clear_compiled_tpl();
+	}
+
+/*
+	public function isCached($template)
 	{
 		if ($this->smarty->is_cached($template))
 		{
@@ -156,4 +176,9 @@ class Piwik_View implements Piwik_iView
 		$this->smarty->caching = $caching;
 	}
 */
+
+	static public function addPiwikPath(&$value, $key)
+	{
+		$value = PIWIK_INCLUDE_PATH ."/$value";
+	}
 }

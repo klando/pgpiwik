@@ -12,7 +12,7 @@ function piwikHelper()
 piwikHelper.getQueryStringFromParameters = function(parameters)
 {
 	var queryString = '';
-	if(parameters.length==0) {
+	if(!parameters || parameters.length==0) {
 		return queryString;
 	}
 	for(var name in parameters) {
@@ -78,7 +78,7 @@ piwikHelper.toggleAjaxLoading = function()
 
 piwikHelper.getStandardAjaxConf = function()
 {
-	var ajaxRequest = new Object;
+	var ajaxRequest = {};
 	ajaxRequest.type = 'GET';
 	ajaxRequest.url = 'index.php';
 	ajaxRequest.dataType = 'json';

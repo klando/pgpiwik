@@ -78,7 +78,7 @@ class Piwik
 				'/tmp',
 				'/tmp/templates_c',
 				'/tmp/cache',
-				'/tmp/latest/',
+				'/tmp/latest',
 			); 
 		}
 		
@@ -163,8 +163,8 @@ class Piwik
 	
 	static public function log($message = '')
 	{
-		Zend_Registry::get('logger_message')->log($message);
-		Zend_Registry::get('logger_message')->log( "<br>" . PHP_EOL);
+		Zend_Registry::get('logger_message')->logEvent($message);
+		Zend_Registry::get('logger_message')->logEvent( "<br>" . PHP_EOL);
 	}
 	
 	
@@ -901,8 +901,7 @@ class Piwik
 			||  $currentAction != $newAction )
 		{
 			
-			$newUrl = Piwik_URL::getCurrentUrlWithoutQueryString() 
-				. Piwik_Url::getCurrentQueryStringWithParametersModified(
+			$newUrl = 'index.php' . Piwik_Url::getCurrentQueryStringWithParametersModified(
 						array('module' => $newModule, 'action' => $newAction)
 				);
 	
@@ -914,7 +913,6 @@ class Piwik
 	static public function displayScreenForCoreAndPluginsUpdatesIfNecessary()
 	{
 		require_once "Updater.php";
-		require_once "Version.php";
 		$updater = new Piwik_Updater();
 		$updater->addComponentToCheck('core', Piwik_Version::VERSION);
 		
@@ -1202,14 +1200,13 @@ class Piwik
 		{
 			$dbName = Zend_Registry::get('config')->database->dbname;
 		}
-		Zend_Registry::get('db')->query("DROP DATABASE IF EXISTS ".$dbName);
-		Zend_Registry::get('db')->query("CREATE DATABASE ".$dbName);
+		Piwik_Query("CREATE DATABASE ".$dbName);
 	}
 	
 	static public function dropDatabase()
 	{
 		$dbName = Zend_Registry::get('config')->database->dbname;
-		Zend_Registry::get('db')->query("DROP DATABASE IF EXISTS " . $dbName);
+		Piwik_Query("DROP DATABASE IF EXISTS " . $dbName);
 	}
 	
 	static public function createDatabaseObject( $dbInfos = null )
@@ -1244,7 +1241,7 @@ class Piwik
 	
 	static public function getSqlVersion()
 	{
-		return Zend_Registry::get('db')->fetchOne("show server_version");
+		return Piwik_FetchOne("show server_version");
 	}
 
 	static public function createLogObject()
@@ -1399,7 +1396,7 @@ class Piwik
 		$tablesAlreadyInstalled = self::getTablesInstalled($forceReload = true);
 		foreach($tablesAlreadyInstalled as $table) 
 		{
-			Zend_Registry::get('db')->query("TRUNCATE \"$table\"");
+			Piwik_Query("TRUNCATE \"$table\"");
 		}
 	}
 	

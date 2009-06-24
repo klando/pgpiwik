@@ -73,10 +73,11 @@ class Piwik_Common
 	 */
 	static function getCacheWebsiteAttributes( $idSite )
 	{
+		require_once "Loader.php";
+
 		static $cache = null;
 		if(is_null($cache))
 		{
-			require_once "CacheFile.php";
 			$cache = new Piwik_CacheFile('tracker');
 		}
 		$filename = $idSite;
@@ -88,27 +89,10 @@ class Piwik_Common
 		if(defined('PIWIK_TRACKER_MODE') 
 			&& PIWIK_TRACKER_MODE) 
 		{
-			//TODO we can remove these includes when #620 is done
-			require_once "Zend/Exception.php";
-			require_once "Zend/Loader.php"; 
-			require_once "Zend/Auth.php";
-			require_once "Timer.php";
 			require_once "PluginsManager.php";
-			require_once "core/Piwik.php";
-			require_once "Access.php";
-			require_once "Auth.php";
-			require_once "API/Proxy.php";
-			require_once "Archive.php";
-			require_once "Site.php";
-			require_once "Date.php";
-			require_once "DataTable.php";
 			require_once "Translate.php";
-			require_once "Mail.php";
-			require_once "Url.php";
-			require_once "Controller.php";
 			require_once "Option.php";
-			require_once "View.php";
-			require_once "UpdateCheck.php";
+
 			Zend_Registry::set('db', Piwik_Tracker::getDatabase());
 			Piwik::createAccessObject();
 			Piwik::createConfigObject();
@@ -148,7 +132,6 @@ class Piwik_Common
 	
 	static public function deleteCacheWebsiteAttributes( $idSite )
 	{
-		require_once "CacheFile.php";
 		$cache = new Piwik_CacheFile('tracker');
 		$filename = $idSite;
 		$cache->delete($filename);
@@ -182,7 +165,7 @@ class Piwik_Common
 	 */
 	static public function getPathToPiwikRoot()
 	{
-		return realpath( dirname(__FILE__). "/../" );
+		return realpath( dirname(__FILE__). "/.." );
 	}
 	
 
@@ -351,7 +334,7 @@ class Piwik_Common
 		}
 		elseif(is_string($value))
 		{
-			$value = htmlspecialchars($value, Piwik_Common::HTML_ENCODING_QUOTE_STYLE, 'UTF-8');
+			$value = self::sanitizeInputValue($value);
 
 			// Undo the damage caused by magic_quotes -- only before php 5.3 as it is now deprecated
 			if ( version_compare(phpversion(), '5.3') === -1 
@@ -383,6 +366,16 @@ class Piwik_Common
 		return $value;
 	}
 
+	static public function sanitizeInputValue($value)
+	{
+		return htmlspecialchars($value, Piwik_Common::HTML_ENCODING_QUOTE_STYLE, 'UTF-8');
+	}
+	
+	static public function unsanitizeInputValue($value)
+	{
+		return htmlspecialchars_decode($value, Piwik_Common::HTML_ENCODING_QUOTE_STYLE);
+	}
+	
 	/**
 	 * Returns a sanitized variable value from the $_GET and $_POST superglobal.
 	 * If the variable doesn't have a value or an empty value, returns the defaultValue if specified.
@@ -498,11 +491,21 @@ class Piwik_Common
 	}
 
 	/**
-	 * Returns the best possible IP of the current user, in the format A.B.C.D
+	 * Convert dotted IP to a stringified integer representation
 	 *
 	 * @return string ip
 	 */
 	static public function getIp()
+	{
+		return sprintf("%u", ip2long(self::getIpString()));
+	}
+
+	/**
+	 * Returns the best possible IP of the current user, in the format A.B.C.D
+	 *
+	 * @return string ip
+	 */
+	static public function getIpString()
 	{
 		if(isset($_SERVER['HTTP_CLIENT_IP'])
 		&& ($ip = Piwik_Common::getFirstIpFromList($_SERVER['HTTP_CLIENT_IP']))
@@ -798,9 +801,9 @@ class Piwik_Common
 		}
 		
 		if(function_exists('iconv') 
-			&& isset($GLOBALS['Piwik_SearchEngines'][$refererHost][2]))
+			&& isset($GLOBALS['Piwik_SearchEngines'][$refererHost][3]))
 		{
-			$charset = trim($GLOBALS['Piwik_SearchEngines'][$refererHost][2]);
+			$charset = trim($GLOBALS['Piwik_SearchEngines'][$refererHost][3]);
 			if(!empty($charset)) 
 			{
 				$key = @iconv($charset, 'utf-8//IGNORE', $key);

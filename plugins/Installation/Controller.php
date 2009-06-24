@@ -56,8 +56,8 @@ class Piwik_Installation_Controller extends Piwik_Controller
 		require_once "Login/Controller.php";
 		Piwik_Login_Controller::clearSession();
 		
-		$view = new Piwik_Install_View(
-						$this->pathView . 'welcome.tpl',
+		$view = new Piwik_Installation_View(
+						$this->pathView . 'welcome.tpl', 
 						$this->getInstallationSteps(),
 						__FUNCTION__
 					);
@@ -72,7 +72,7 @@ class Piwik_Installation_Controller extends Piwik_Controller
 	{
 		$this->checkPreviousStepIsValid( __FUNCTION__ );
 		
-		$view = new Piwik_Install_View(
+		$view = new Piwik_Installation_View(
 						$this->pathView . 'systemCheck.tpl', 
 						$this->getInstallationSteps(),
 						__FUNCTION__
@@ -101,7 +101,7 @@ class Piwik_Installation_Controller extends Piwik_Controller
 		$_SESSION['skipThisStep']['firstWebsiteSetup'] = false;
 		$_SESSION['skipThisStep']['displayJavascriptCode'] = false;
 		
-		$view = new Piwik_Install_View(
+		$view = new Piwik_Installation_View(
 						$this->pathView . 'databaseSetup.tpl', 
 						$this->getInstallationSteps(),
 						__FUNCTION__
@@ -168,7 +168,7 @@ class Piwik_Installation_Controller extends Piwik_Controller
 	{
 		$this->checkPreviousStepIsValid( __FUNCTION__ );
 		
-		$view = new Piwik_Install_View(
+		$view = new Piwik_Installation_View(
 						$this->pathView . 'tablesCreation.tpl', 
 						$this->getInstallationSteps(),
 						__FUNCTION__
@@ -207,7 +207,6 @@ class Piwik_Installation_Controller extends Piwik_Controller
 		{
 			Piwik::createTables();
 			Piwik::createAnonymousUser();
-			require_once "Version.php";
 			require_once "Updater.php";
 			$updater = new Piwik_Updater();
 			$updater->recordComponentSuccessfullyUpdated('core', Piwik_Version::VERSION);
@@ -231,7 +230,7 @@ class Piwik_Installation_Controller extends Piwik_Controller
 	{		
 		$this->checkPreviousStepIsValid( __FUNCTION__ );
 		
-		$view = new Piwik_Install_View(
+		$view = new Piwik_Installation_View(
 						$this->pathView . 'generalSetup.tpl', 
 						$this->getInstallationSteps(),
 						__FUNCTION__
@@ -278,7 +277,7 @@ class Piwik_Installation_Controller extends Piwik_Controller
 	{
 		$this->checkPreviousStepIsValid( __FUNCTION__ );
 				
-		$view = new Piwik_Install_View(
+		$view = new Piwik_Installation_View(
 						$this->pathView . 'firstWebsiteSetup.tpl', 
 						$this->getInstallationSteps(),
 						__FUNCTION__
@@ -329,7 +328,7 @@ class Piwik_Installation_Controller extends Piwik_Controller
 	{
 		$this->checkPreviousStepIsValid( __FUNCTION__ );
 		
-		$view = new Piwik_Install_View(
+		$view = new Piwik_Installation_View(
 						$this->pathView . 'displayJavascriptCode.tpl', 
 						$this->getInstallationSteps(),
 						__FUNCTION__
@@ -358,7 +357,7 @@ class Piwik_Installation_Controller extends Piwik_Controller
 	{
 		$this->checkPreviousStepIsValid( __FUNCTION__ );
 
-		$view = new Piwik_Install_View(
+		$view = new Piwik_Installation_View(
 						$this->pathView . 'finished.tpl', 
 						$this->getInstallationSteps(),
 						__FUNCTION__
@@ -368,7 +367,7 @@ class Piwik_Installation_Controller extends Piwik_Controller
 		$_SESSION['currentStepDone'] = __FUNCTION__;		
 		$view->showNextStep = false;
 		
-	    setcookie(session_name(), session_id(), 1, '/');
+		setcookie(session_name(), session_id(), 1, '/');
 		@session_destroy();	
 		echo $view->render();
 	}

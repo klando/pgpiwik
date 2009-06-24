@@ -4,12 +4,12 @@
 //A list of all our DataTables
 //Test if the object have already been initialized (multiple includes)
 if(typeof dataTables == "undefined")
-	var dataTables = new Object;
+	var dataTables = {};
 
 //DataTable constructor
 function dataTable()
 {
-	this.param = new Object;
+	this.param = {};
 }
 
 //Prototype of the DataTable object
@@ -24,7 +24,7 @@ dataTable.prototype =
 		}
 		
 		this.workingDivId = workingDivId;
-		this.loadedSubDataTable = new Object;
+		this.loadedSubDataTable = {};
 		this.bindEventsAndApplyStyle(domElem);
 		this.initialized = true;
 	},
@@ -111,7 +111,7 @@ dataTable.prototype =
 		var ajaxRequest = 
 		{
 			type: 'GET',
-			url: piwik.piwik_url + 'index.php',
+			url: 'index.php',
 			dataType: 'html',
 			async: true,
 			error: piwikHelper.ajaxHandleError,		// Callback when the request fails
@@ -238,7 +238,7 @@ dataTable.prototype =
 			// adding an image and the class columnSorted to the TD
 			$(".sortable#"+self.param.filter_sort_column+' #thDIV', domElem).parent()
 				.addClass('columnSorted')
-				.prepend('<div id="sortIconContainer"><img id="sortIcon" width="'+imageSortWidth+'" height="'+imageSortHeight+'" src="'+piwik.piwik_url+'themes/default/images/sort'+prefixSortIcon+ self.param.filter_sort_order+'.png" /></div>');
+				.prepend('<div id="sortIconContainer"><img id="sortIcon" width="'+imageSortWidth+'" height="'+imageSortHeight+'" src="themes/default/images/sort'+prefixSortIcon+ self.param.filter_sort_order+'.png" /></div>');
 		}
 	},
 	
@@ -347,7 +347,7 @@ dataTable.prototype =
 				{
 					var target = this;
 					var clearImg = $('<span style="position: relative;">\
-							<img src="'+piwik.piwik_url+'plugins/CoreHome/templates/images/reset_search.png" style="position: absolute; top: 4px; left: -15px; cursor: pointer; display: inline;" title="Clear"/>\
+							<img src="plugins/CoreHome/templates/images/reset_search.png" style="position: absolute; top: 4px; left: -15px; cursor: pointer; display: inline;" title="Clear"/>\
 							</span>')
 						.click( function() {
 							$('#keyword', target).val('');
@@ -525,7 +525,7 @@ dataTable.prototype =
 				if(typeof date != 'undefined') {
 					param_date = date; 
 				}
-				var str = '?module=API'
+				var str = 'index.php?module=API'
 						+'&method='+method
 						+'&format='+format
 						+'&idSite='+self.param.idSite
@@ -594,7 +594,7 @@ dataTable.prototype =
 				var imgToPrepend = '';
 				if( $(this).find('img').length == 0 )
 				{
-					imgToPrepend = '<img width="'+imageLinkWidth+'" height="'+imageLinkHeight+'" src="'+piwik.piwik_url+'themes/default/images/link.gif" /> ';
+					imgToPrepend = '<img width="'+imageLinkWidth+'" height="'+imageLinkHeight+'" src="themes/default/images/link.gif" /> ';
 				}
 				var urlLinkDom = $('#urlLink',this);
 				var urlToLink = $(urlLinkDom).html();
@@ -602,19 +602,18 @@ dataTable.prototype =
 				
 				var truncationOffsetBecauseImageIsPrepend = -2; //website subtable needs -9. 
 				self.truncate( $(this), truncationOffsetBecauseImageIsPrepend );
-				
+
 				if( urlToLink.match("javascript:") )
 				{
-					$(this).html( '<a href="#" onClick="' + urlToLink.replace("javascript:","") + '">' + imgToPrepend + $(this).html() + '</a>');				
+					$(this).prepend(imgToPrepend).wrapInner('<a href="#" onclick="' + urlToLink.replace("javascript:","") + '"></a>');
 				}
 				else
 				{
-					$(this).html( '<a target="_blank" href="' + urlToLink + '">' + imgToPrepend + $(this).html() + '</a>');
+					$(this).prepend(imgToPrepend).wrapInner('<a target="_blank" href="' + urlToLink + '"></a>');
 				}
 			});
 		}
-	
-		
+
 		// Add some styles on the cells even/odd
 		// label (first column of a data row) or not
 		$("th:first-child", domElem).addClass('label');
@@ -657,7 +656,7 @@ dataTable.prototype =
 					'<tr>'+
 						'<td colspan="'+numberOfColumns+'" class="cellSubDataTable">'+
 							'<div id="'+divIdToReplaceWithSubTable+'">'+
-								'<span id="loadingDataTable" style="display:inline"><img src="'+piwik.piwik_url+'themes/default/images/loading-blue.gif" />'+ _pk_translate('CoreHome_Loading_js') +'</span>'+
+								'<span id="loadingDataTable" style="display:inline"><img src="themes/default/images/loading-blue.gif" />'+ _pk_translate('CoreHome_Loading_js') +'</span>'+
 							'</div>'+
 						'</td>'+
 					'</tr>'
@@ -716,7 +715,7 @@ actionDataTable.prototype.constructor = actionDataTable;
 //Test if the object have already been initialized (multiple includes)
 if(typeof actionDataTables == "undefined")
 {
-	var actionDataTables = new Object;
+	var actionDataTables = {};
 }
 
 //actionDataTable constructor
@@ -725,7 +724,7 @@ function actionDataTable()
 	dataTable.call(this);
 	this.parentAttributeParent = '';
 	this.parentId = '';
-	this.disabledRowDom = new Object;	//to handle double click on '+' row
+	this.disabledRowDom = {};	//to handle double click on '+' row
 }
 
 //Prototype of the actionDataTable object
@@ -803,11 +802,11 @@ actionDataTable.prototype =
 						$(this).prepend('<img width="'+imagePlusMinusWidth+'" height="'+imagePlusMinusHeight+'" class="plusMinus" src="" />');
 						if(self.param.filter_pattern_recursive)
 						{					
-							setImageMinus(this, piwik.piwik_url);
+							setImageMinus(this);
 						}
 						else
 						{
-							setImagePlus(this, piwik.piwik_url);
+							setImagePlus(this);
 						}
 					});
 		
@@ -876,7 +875,7 @@ actionDataTable.prototype =
 			$(domElem).after( '\
 			<tr id="'+divIdToReplaceWithSubTable+'" class="cellSubDataTable">\
 				<td colspan="'+numberOfColumns+'">\
-						<span id="loadingDataTable" style="display:inline"><img src="'+piwik.piwik_url+'themes/default/images/loading-blue.gif" /> Loading...</span>\
+						<span id="loadingDataTable" style="display:inline"><img src="themes/default/images/loading-blue.gif" /> Loading...</span>\
 				</td>\
 			</tr>\
 			');
@@ -918,7 +917,7 @@ actionDataTable.prototype =
 							var nextRowLevel = getLevelFromClass(NextStyle);
 
 							if(currentRowLevel < nextRowLevel)
-								setImageMinus(this, piwik.piwik_url);
+								setImageMinus(this);
 						}
 						else
 						{
@@ -933,11 +932,11 @@ actionDataTable.prototype =
 		var plusDetected = $('td img', domElem).attr('src').indexOf('plus') >= 0;
 		if(plusDetected)
 		{
-			setImageMinus(domElem, piwik.piwik_url);
+			setImageMinus(domElem);
 		}
 		else
 		{
-			setImagePlus(domElem, piwik.piwik_url);
+			setImagePlus(domElem);
 		}
 	},
 	
@@ -1017,14 +1016,14 @@ function getNextLevelFromClass( style )
 }
 
 //helper function for actionDataTable
-function setImageMinus( domElem, pathToPiwik )
+function setImageMinus( domElem )
 {
-	$('img',domElem).attr('src', pathToPiwik + 'themes/default/images/minus.png');
+	$('img',domElem).attr('src', 'themes/default/images/minus.png');
 }
 
 //helper function for actionDataTable
-function setImagePlus( domElem, pathToPiwik )
+function setImagePlus( domElem )
 {
-	$('img',domElem).attr('src', pathToPiwik + 'themes/default/images/plus.png');
+	$('img',domElem).attr('src', 'themes/default/images/plus.png');
 }
 

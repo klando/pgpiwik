@@ -18,11 +18,12 @@ error_reporting(E_ALL|E_NOTICE);
 define('PIWIK_INCLUDE_PATH', dirname(__FILE__));
 @ignore_user_abort(true);
 
-set_include_path(PIWIK_INCLUDE_PATH 
-					. PATH_SEPARATOR . PIWIK_INCLUDE_PATH . '/core'
-					. PATH_SEPARATOR . PIWIK_INCLUDE_PATH . '/libs/'
-					. PATH_SEPARATOR . PIWIK_INCLUDE_PATH . '/plugins/'
-					. PATH_SEPARATOR . get_include_path() );
+if((@include "Version.php") === false || !class_exists('Piwik_Version', false))
+{
+	set_include_path(PIWIK_INCLUDE_PATH . '/core'
+		. PATH_SEPARATOR . PIWIK_INCLUDE_PATH . '/libs'
+		. PATH_SEPARATOR . PIWIK_INCLUDE_PATH . '/plugins');
+}
 
 require_once "Common.php";
 require_once "PluginsManager.php";
@@ -38,6 +39,7 @@ session_cache_limiter('nocache');
 ob_start();
 if($GLOBALS['PIWIK_TRACKER_DEBUG'] === true)
 {	
+	require_once "core/Loader.php";
 	date_default_timezone_set(date_default_timezone_get());
 	require_once "core/ErrorHandler.php";
 	require_once "core/ExceptionHandler.php";
@@ -53,4 +55,3 @@ $process = new Piwik_Tracker;
 $process->main();
 ob_end_flush();
 printDebug($_COOKIE);
-

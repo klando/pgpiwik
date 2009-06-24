@@ -15,8 +15,8 @@
 <script type="text/javascript" src="libs/jquery/ui.mouse.js"></script>
 <script type="text/javascript" src="libs/jquery/ui.sortable_modif.js"></script>
 
-<link rel="stylesheet" href="plugins/CoreHome/templates/datatable.css">
-<link rel="stylesheet" href="plugins/Dashboard/templates/dashboard.css">
+<link rel="stylesheet" type="text/css" href="plugins/CoreHome/templates/datatable.css" />
+<link rel="stylesheet" type="text/css" href="plugins/Dashboard/templates/dashboard.css" />
 <script type="text/javascript" src="plugins/Widgetize/templates/widgetize.js"></script>
 <script src="http://cdn.clearspring.com/launchpad/v2/standalone.js" type="text/javascript"></script>
 {literal}
@@ -76,7 +76,7 @@ $(document).ready( function() {
 <div style="max-width:980px;">
 	<p>With Piwik, you can export your Web Analytics reports on your blog, website, or intranet dashboard... in one click. 
 	If you want your widgets to be viewable by everybody, you first have to set the 'view' permissions 
-	to the anonymous user in the <a href='?module=UsersManager'>Users Management section</a>.
+	to the anonymous user in the <a href='index.php?module=UsersManager'>Users Management section</a>.
 	<br>Note: You can also display the full Piwik dashboard in your application or website in an Iframe. 
 	For example, for idSite=1 and date=yesterday, you can write: <span id='exportFullDashboard'></span>
 	</p>

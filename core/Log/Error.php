@@ -24,7 +24,7 @@ class Piwik_Log_Error extends Piwik_Log
 		$logToFileFilename = self::ID;
 		$logToDatabaseTableName = self::ID;
 		$logToDatabaseColumnMapping = null;
-		$screenFormatter = new Piwik_Log_Formatter_Error_ScreenFormatter;
+		$screenFormatter = new Piwik_Log_Error_Formatter_ScreenFormatter;
 		$fileFormatter = new Piwik_Log_Formatter_FileFormatter;
 		
 		parent::__construct($logToFileFilename, 
@@ -42,7 +42,7 @@ class Piwik_Log_Error extends Piwik_Log
 		$this->addWriter($writerScreen);
 	}
 	
-	public function log($errno, $errstr, $errfile, $errline, $backtrace)
+	public function logEvent($errno, $errstr, $errfile, $errline, $backtrace)
 	{
 		$event = array();
 		$event['errno'] = $errno;
@@ -51,7 +51,7 @@ class Piwik_Log_Error extends Piwik_Log
 		$event['errline'] = $errline;
 		$event['backtrace'] = $backtrace;
 		
-		parent::log($event);
+		parent::log($event, Piwik_Log::ERR);
 	}
 }
 
@@ -63,7 +63,7 @@ class Piwik_Log_Error extends Piwik_Log
  * @package Piwik_Log
  * @subpackage Piwik_Log_Error
  */
-class Piwik_Log_Formatter_Error_ScreenFormatter extends Piwik_Log_Formatter_ScreenFormatter
+class Piwik_Log_Error_Formatter_ScreenFormatter extends Piwik_Log_Formatter_ScreenFormatter
 {
 	/**
      * Formats data into a single line to be written by the writer.

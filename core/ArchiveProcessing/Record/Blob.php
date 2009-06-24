@@ -26,6 +26,11 @@ class Piwik_ArchiveProcessing_Record_Blob extends Piwik_ArchiveProcessing_Record
 	{
 		parent::__construct( $name, $value );
 	}
+
+	function __destruct()
+	{
+		destroy($this->value);
+	}
 	
 	public function __toString()
 	{

@@ -48,7 +48,8 @@ class Piwik_Tracker_Visit implements Piwik_Tracker_Visit_Interface
 	protected $refererHost;
 	protected $refererUrl;
 	protected $refererUrlParse;
-	
+	protected $currentUrlParse;
+
 	function __construct()
 	{
 		$idsite = Piwik_Common::getRequestVar('idsite', 0, 'int', $this->request);
@@ -90,41 +91,29 @@ class Piwik_Tracker_Visit implements Piwik_Tracker_Visit_Interface
 			return;
 		}
 		
-		$action = $this->newAction();
-		$action->setIdSite($this->idsite);
-		$action->setRequest($this->request);
-		$action->init();
-		if($this->detectActionIsOutlinkOnAliasHost($action))
-		{
-			printDebug("The outlink's URL host is one  of the known host for this website. We don't record this click.");
-			return;
-		}
-		$actionId = $action->getIdAction();
-
-		if(isset($GLOBALS['PIWIK_TRACKER_DEBUG']) && $GLOBALS['PIWIK_TRACKER_DEBUG'])
-		{
-			switch($action->getActionType()) {
-				case Piwik_Tracker_Action::TYPE_ACTION:
-					$type = "normal page view";
-					break;
-				case Piwik_Tracker_Action::TYPE_DOWNLOAD:
-					$type = "download";
-					break;
-				case Piwik_Tracker_Action::TYPE_OUTLINK:
-					$type = "outlink";
-					break;
-			}
-			printDebug("Detected action <u>$type</u>, 
-						Action name: ". $action->getActionName() . ", 
-						Action URL = ". $action->getActionUrl() );
-		}
-				
-		// goal matched?
-		$goalManager = new Piwik_Tracker_GoalManager( $action );
+		$goalManager = new Piwik_Tracker_GoalManager();
 		$someGoalsConverted = false;
-		if($goalManager->detectGoals($this->idsite))
+		$actionId = 0;
+		$action = null;
+		
+		$idGoal = Piwik_Common::getRequestVar('idgoal', 0, 'int', $this->request);
+		// this request is from the JS call to piwikTracker.trackGoal() 
+		if($idGoal > 0)
 		{
-			$someGoalsConverted = true;
+			$someGoalsConverted = $goalManager->detectGoalId($this->idsite, $idGoal, $this->request);
+			// if we find a idgoal in the URL, but then the goal is not valid, this is most likely a fake request
+			if(!$someGoalsConverted)
+			{
+				return;
+			}
+		}
+		// normal page view, potentially triggering a URL matching goal
+		else
+		{
+			$action = $this->newAction();
+			$this->handleAction($action);
+			$someGoalsConverted = $goalManager->detectGoalsMatchingUrl($this->idsite, $action);
+			$actionId = $action->getIdAction();
 		}
 
 		// the visitor and session
@@ -144,10 +133,13 @@ class Piwik_Tracker_Visit implements Piwik_Tracker_Visit_Interface
 			$idActionReferer = $this->visitorInfo['visit_exit_idaction'];
 			try {
 				$this->handleKnownVisit($actionId, $someGoalsConverted);
-				$action->record( 	$this->visitorInfo['idvisit'], 
-									$idActionReferer, 
-									$this->visitorInfo['time_spent_ref_action']
-							);
+				if(!is_null($action))
+				{
+					$action->record( 	$this->visitorInfo['idvisit'], 
+										$idActionReferer, 
+										$this->visitorInfo['time_spent_ref_action']
+								);	
+				}
 			} catch(Piwik_Tracker_Visit_VisitorNotFoundInDatabase $e) {
 				printDebug($e->getMessage());
 				$this->visitorKnown = false;
@@ -165,7 +157,10 @@ class Piwik_Tracker_Visit implements Piwik_Tracker_Visit_Interface
 			if (empty($this->visitorInfo['idvisit'])) {
 				$this->visitorInfo['idvisit'] = 0;
 			}
-			$action->record( $this->visitorInfo['idvisit'], 0, 0 );
+				if(!is_null($action))
+			{
+				$action->record( $this->visitorInfo['idvisit'], 0, 0 );
+			}
 		}
 		
 		// update the cookie with the new visit information
@@ -175,13 +170,40 @@ class Piwik_Tracker_Visit implements Piwik_Tracker_Visit_Interface
 		if($someGoalsConverted) 
 		{
 			$goalManager->setCookie($this->cookie);
-			$goalManager->recordGoals($this->visitorInfo);
+			$goalManager->recordGoals($this->visitorInfo, $action);
 		}
 		unset($goalManager);
 		unset($action);
 	}
 
-	
+	protected function handleAction($action)
+	{
+		$action->setIdSite($this->idsite);
+		$action->setRequest($this->request);
+		$action->init();
+		if($this->detectActionIsOutlinkOnAliasHost($action))
+		{
+			printDebug("The outlink's URL host is one  of the known host for this website. We don't record this click.");
+			return;
+		}
+		if(isset($GLOBALS['PIWIK_TRACKER_DEBUG']) && $GLOBALS['PIWIK_TRACKER_DEBUG'])
+		{
+			switch($action->getActionType()) {
+				case Piwik_Tracker_Action::TYPE_ACTION:
+					$type = "normal page view";
+					break;
+				case Piwik_Tracker_Action::TYPE_DOWNLOAD:
+					$type = "download";
+					break;
+				case Piwik_Tracker_Action::TYPE_OUTLINK:
+					$type = "outlink";
+					break;
+			}
+			printDebug("Detected action <u>$type</u>, 
+						Action name: ". $action->getActionName() . ", 
+						Action URL = ". $action->getActionUrl() );
+		}
+	}
 	/**
 	 * In the case of a known visit, we have to do the following actions:
 	 * 
@@ -201,20 +223,22 @@ class Piwik_Tracker_Visit implements Piwik_Tracker_Visit_Interface
 			$sqlUpdateGoalConverted = " visit_goal_converted = 1,";
 		}
 		
-		if (empty($actionId)) {
-			$actionId = 0;
+		$sqlActionIdUpdate = '';
+		if(!empty($actionId))
+		{
+			$sqlActionIdUpdate = "visit_exit_idaction = ". $actionId .",
+									visit_total_actions = visit_total_actions + 1, ";
+			$this->visitorInfo['visit_exit_idaction'] = $actionId;
 		}
 		$statement = Piwik_Tracker::getDatabase()->query("/* SHARDING_ID_SITE = ". $this->idsite ." */
 							UPDATE ". Piwik_Common::prefixTable('log_visit')." 
-							SET visit_last_action_time = ?,
-								visit_exit_idaction = ?,
-								visit_total_actions = visit_total_actions + 1,
+							SET $sqlActionIdUpdate
 								$sqlUpdateGoalConverted
+								visit_last_action_time = ?,
 								visit_total_time = UNIX_TIMESTAMP(visit_last_action_time) - UNIX_TIMESTAMP(visit_first_action_time)
 							WHERE idvisit = ?
 								AND visitor_idcookie = ?",
 							array( 	$datetimeServer,
-									$actionId,
 									$this->visitorInfo['idvisit'],
 									$this->visitorInfo['visitor_idcookie'] )
 				);
@@ -228,7 +252,6 @@ class Piwik_Tracker_Visit implements Piwik_Tracker_Visit_Interface
 		// will be updated in cookie
 		$this->visitorInfo['time_spent_ref_action'] = $serverTime - $this->visitorInfo['visit_last_action_time'];
 		$this->visitorInfo['visit_last_action_time'] = $serverTime;
-		$this->visitorInfo['visit_exit_idaction'] = $actionId;
 	}
 	
 	/**
@@ -295,7 +318,6 @@ class Piwik_Tracker_Visit implements Piwik_Tracker_Visit_Interface
 			'config_resolution' 	=> $userInfo['config_resolution'],
 			'config_pdf' 			=> $userInfo['config_pdf'],
 			'config_flash' 			=> $userInfo['config_flash'],
-			'config_java' 			=> $userInfo['config_java'],
 			'config_director' 		=> $userInfo['config_director'],
 			'config_realplayer' 	=> $userInfo['config_realplayer'],
 			'config_windowsmedia' 	=> $userInfo['config_windowsmedia'],
@@ -536,7 +558,6 @@ class Piwik_Tracker_Visit implements Piwik_Tracker_Visit_Interface
 		$plugin_RealPlayer 		= Piwik_Common::getRequestVar( 'realp', 0, 'int', $this->request);
 		$plugin_Pdf 			= Piwik_Common::getRequestVar( 'pdf', 0, 'int', $this->request);
 		$plugin_WindowsMedia 	= Piwik_Common::getRequestVar( 'wma', 0, 'int', $this->request);
-		$plugin_Java 			= Piwik_Common::getRequestVar( 'java', 0, 'int', $this->request);
 		$plugin_Cookie 			= Piwik_Common::getRequestVar( 'cookie', 0, 'int', $this->request);
 		
 		$userAgent		= Piwik_Common::sanitizeInputValues(@$_SERVER['HTTP_USER_AGENT']);
@@ -551,7 +572,6 @@ class Piwik_Tracker_Visit implements Piwik_Tracker_Visit_Interface
 		$resolution		= Piwik_Common::getRequestVar('res', 'unknown', 'string', $this->request);
 
 		$ip				= Piwik_Common::getIp();
-		$ip 			= ip2long($ip);
 
 		$browserLang	= Piwik_Common::getBrowserLanguage();
 		
@@ -565,7 +585,6 @@ class Piwik_Tracker_Visit implements Piwik_Tracker_Visit_Interface
 												$plugin_RealPlayer,
 												$plugin_Pdf,
 												$plugin_WindowsMedia,
-												$plugin_Java,
 												$plugin_Cookie,
 												$ip,
 												$browserLang);
@@ -578,7 +597,6 @@ class Piwik_Tracker_Visit implements Piwik_Tracker_Visit_Interface
 			'config_resolution' 	=> $resolution,
 			'config_pdf' 			=> $plugin_Pdf,
 			'config_flash' 			=> $plugin_Flash,
-			'config_java' 			=> $plugin_Java,
 			'config_director' 		=> $plugin_Director,
 			'config_realplayer' 	=> $plugin_RealPlayer,
 			'config_windowsmedia' 	=> $plugin_WindowsMedia,
@@ -650,9 +668,12 @@ class Piwik_Tracker_Visit implements Piwik_Tracker_Visit_Interface
 								$this->visitorInfo['idvisit'] );
 		
 		// the last action ID is the current exit idaction
-		$this->cookie->set( 	Piwik_Tracker::COOKIE_INDEX_ID_LAST_ACTION, 	
+		if(isset($this->visitorInfo['visit_exit_idaction'] ))
+		{
+			$this->cookie->set( 	Piwik_Tracker::COOKIE_INDEX_ID_LAST_ACTION, 	
 								$this->visitorInfo['visit_exit_idaction'] );
-
+		}
+		
 		// for a new visit, we flag the visit with visitor_returning 
 		if(isset($this->visitorInfo['visitor_returning']))
 		{
@@ -723,8 +744,9 @@ class Piwik_Tracker_Visit implements Piwik_Tracker_Visit_Interface
 		$currentUrl	= Piwik_Common::getRequestVar( 'url', '', 'string', $this->request);
 
 		$this->refererUrl = $refererUrl;
-		$this->refererUrlParse = @parse_url($refererUrl);
-		$this->currentUrlParse = @parse_url($currentUrl);
+		$this->refererUrlParse = @parse_url(html_entity_decode($refererUrl));
+		$this->currentUrlParse = @parse_url(html_entity_decode($currentUrl));
+
 		if(isset($this->refererUrlParse['host']))
 		{
 			$this->refererHost = $this->refererUrlParse['host'];
@@ -850,7 +872,7 @@ class Piwik_Tracker_Visit implements Piwik_Tracker_Visit_Interface
 			return false;
 		}
 		$actionUrl = $action->getActionUrl();
-		$actionUrlParsed = @parse_url($actionUrl);
+		$actionUrlParsed = @parse_url(html_entity_decode($actionUrl));
 		if(!isset($actionUrlParsed['host']))
 		{
 			return false;
@@ -881,9 +903,9 @@ class Piwik_Tracker_Visit implements Piwik_Tracker_Visit_Interface
 	 * Returns a MD5 of all the configuration settings
 	 * @return string
 	 */
-	protected function getConfigHash( $os, $browserName, $browserVersion, $resolution, $plugin_Flash, $plugin_Director, $plugin_RealPlayer, $plugin_Pdf, $plugin_WindowsMedia, $plugin_Java, $plugin_Cookie, $ip, $browserLang)
+	protected function getConfigHash( $os, $browserName, $browserVersion, $resolution, $plugin_Flash, $plugin_Director, $plugin_RealPlayer, $plugin_Pdf, $plugin_WindowsMedia, $plugin_Cookie, $ip, $browserLang)
 	{
-		return md5( $os . $browserName . $browserVersion . $resolution . $plugin_Flash . $plugin_Director . $plugin_RealPlayer . $plugin_Pdf . $plugin_WindowsMedia . $plugin_Java . $plugin_Cookie . $ip . $browserLang );
+		return md5( $os . $browserName . $browserVersion . $resolution . $plugin_Flash . $plugin_Director . $plugin_RealPlayer . $plugin_Pdf . $plugin_WindowsMedia . $plugin_Cookie . $ip . $browserLang );
 	}
 	
 	/**

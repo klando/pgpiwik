@@ -9,8 +9,6 @@
  * @package Piwik_Helper
  */
 
-require_once "core/Piwik.php";
-
 /**
  * Exception handler used to display nicely exceptions in Piwik
  * 
@@ -19,20 +17,18 @@ require_once "core/Piwik.php";
 function Piwik_ExceptionHandler(Exception $exception) 
 {
 	try	{
-		Zend_Registry::get('logger_exception')->log($exception);
+		Zend_Registry::get('logger_exception')->logEvent($exception);
 	} catch(Exception $e) {
 		// case when the exception is raised before the logger being ready
 		// we handle the exception a la mano, but using the Logger formatting properties
-		require_once "Log/Exception.php";
-		
 		$event = array();
 		$event['errno'] 	= $exception->getCode();
 		$event['message'] 	= $exception->getMessage();
 		$event['errfile'] 	= $exception->getFile();
 		$event['errline'] 	= $exception->getLine();
 		$event['backtrace'] = $exception->getTraceAsString();
-		
-		$formatter = new Piwik_Log_Formatter_Exception_ScreenFormatter;
+
+		$formatter = new Piwik_Log_Exception_Formatter_ScreenFormatter;
 		
 		$message = $formatter->format($event);
 		$message .= "<br><br>And this exception raised another exception \"". $e->getMessage()."\"";

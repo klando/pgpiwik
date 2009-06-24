@@ -25,7 +25,7 @@ class Piwik_Log_APICall extends Piwik_Log
 		$logToFileFilename = self::ID;
 		$logToDatabaseTableName = self::ID;
 		$logToDatabaseColumnMapping = null;
-		$screenFormatter = new Piwik_Log_Formatter_APICall_ScreenFormatter;
+		$screenFormatter = new Piwik_Log_APICall_Formatter_ScreenFormatter;
 		$fileFormatter = new Piwik_Log_Formatter_FileFormatter;
 		
 		parent::__construct($logToFileFilename, 
@@ -34,10 +34,10 @@ class Piwik_Log_APICall extends Piwik_Log
 							$logToDatabaseTableName, 
 							$logToDatabaseColumnMapping );
 		
-		$this->setEventItem('caller_ip', ip2long( Piwik_Common::getIp() ) );
+		$this->setEventItem('caller_ip', Piwik_Common::getIp() );
 	}
-	
-	function log( $className, $methodName, $parameterNames,	$parameterValues, $executionTime, $returnedValue)
+
+	public function logEvent($className, $methodName, $parameterNames, $parameterValues, $executionTime, $returnedValue)
 	{
 		$event = array();
 		$event['class_name'] = $className;
@@ -47,7 +47,7 @@ class Piwik_Log_APICall extends Piwik_Log
 		$event['execution_time'] = $executionTime;
 		$event['returned_value'] = is_array($returnedValue) ? serialize($returnedValue) : $returnedValue;
 		
-		parent::log($event);
+		parent::log($event, Piwik_Log::INFO);
 	}
 }
 
@@ -57,7 +57,7 @@ class Piwik_Log_APICall extends Piwik_Log
  * @package Piwik_Log
  * @subpackage Piwik_Log_APICall
  */
-class Piwik_Log_Formatter_APICall_ScreenFormatter extends Piwik_Log_Formatter_ScreenFormatter 
+class Piwik_Log_APICall_Formatter_ScreenFormatter extends Piwik_Log_Formatter_ScreenFormatter 
 {
 	/**
      * Formats data into a single line to be written by the writer.
