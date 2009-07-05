@@ -4,7 +4,7 @@
  * 
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html Gpl v3 or later
- * @version $Id: ExamplePlugin.php 169 2008-01-14 05:41:15Z matt $
+ * @version $Id$
  * 
  * @package Piwik_LanguageManager
  */
@@ -33,7 +33,7 @@ class Piwik_LanguagesManager extends Piwik_Plugin
 
 	function css()
 	{
-		echo '<link rel="stylesheet" type="text/css" href="plugins/LanguagesManager/templates/styles.css" />';
+		echo '<link rel="stylesheet" type="text/css" href="themes/default/styles.css" />';
 	}
 	
 	function showLanguagesSelector()
@@ -127,9 +127,10 @@ class Piwik_LanguagesManager extends Piwik_Plugin
 	 */
 	static protected function getLanguageFromPreferences()
 	{
-		if(isset($_SESSION['language']))
+		$session = new Zend_Session_Namespace("LanguagesManager");
+		if(isset($session->language))
 		{
-			return $_SESSION['language'];
+			return $session->language;
 		}
 		
 		try {

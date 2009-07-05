@@ -1,4 +1,14 @@
 <?php
+/**
+ * Piwik - Open source web analytics
+ * 
+ * @link http://piwik.org
+ * @license http://www.gnu.org/licenses/gpl-3.0.html Gpl v3 or later
+ * @version $Id$
+ * 
+ * @package Piwik_Archive
+ */
+
 require_once "Archive/Array.php";
 
 class Piwik_Archive_Array_IndexedByDate extends Piwik_Archive_Array 
@@ -78,6 +88,11 @@ class Piwik_Archive_Array_IndexedByDate extends Piwik_Archive_Array
 		$arrayValues = array();
 		foreach($queries as $table => $aIds)
 		{
+			if(!count($aIds))
+			{
+				continue;
+			}
+
 			$inIds = implode(', ', $aIds);
 			$sql = "SELECT value, name, UNIX_TIMESTAMP(date1) as timestamp
 									FROM $table

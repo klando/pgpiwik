@@ -4,7 +4,7 @@
  * 
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html Gpl v3 or later
- * @version $Id: View.php 450 2008-04-20 22:33:27Z matt $
+ * @version $Id$
  * 
  * @package Piwik_Visualization
  */
@@ -179,6 +179,9 @@ class Piwik_View implements Piwik_iView
 
 	static public function addPiwikPath(&$value, $key)
 	{
-		$value = PIWIK_INCLUDE_PATH ."/$value";
+		if($value[0] != '/' && $value[0] != DIRECTORY_SEPARATOR)
+		{
+			$value = PIWIK_INCLUDE_PATH ."/$value";
+		}
 	}
 }

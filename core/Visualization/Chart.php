@@ -4,7 +4,7 @@
  * 
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html Gpl v3 or later
- * @version $Id: Chart.php 579 2008-07-27 00:32:59Z matt $
+ * @version $Id$
  * 
  * @package Piwik_Visualization
  */
@@ -166,7 +166,7 @@ abstract class Piwik_Visualization_Chart implements Piwik_iView
 		{
 			$this->maxValue = 1;
 		}
-		$this->y->set_range( $this->minValue, $this->maxValue, $stepsEveryNLabel);
+                $this->y->set_range( $this->minValue, (int) $this->maxValue, (int) $stepsEveryNLabel);
 		$dataSetsToDisplay = $this->getDataSetsToDisplay();
 		if($dataSetsToDisplay != false)
 		{

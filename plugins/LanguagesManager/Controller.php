@@ -4,7 +4,7 @@
  * 
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html Gpl v3 or later
- * @version $Id: Controller.php 241 2008-01-26 01:30:37Z matt $
+ * @version $Id$
  * 
  * @package Piwik_CoreHome
  * 
@@ -25,7 +25,8 @@ class Piwik_LanguagesManager_Controller extends Piwik_Controller
 	{
 		$language = Piwik_Common::getRequestVar('language');
 		$currentUser = Piwik::getCurrentUserLogin();
-		$_SESSION['language'] = $language;
+		$session = new Zend_Session_Namespace("LanguagesManager");
+		$session->language = $language;
 		if($currentUser !== 'anonymous')
 		{
 			Piwik_LanguagesManager_API::setLanguageForUser($currentUser, $language);

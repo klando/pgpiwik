@@ -4,7 +4,7 @@
  * 
  * @link http://piwik.org
  * @license http://www.gnu.org/licenses/gpl-3.0.html Gpl v3 or later
- * @version $Id: Controller.php 241 2008-01-26 01:30:37Z matt $
+ * @version $Id$
  * 
  * @package Piwik_CoreHome
  * 
@@ -102,7 +102,8 @@ class Piwik_Dashboard_Controller extends Piwik_Controller
 
 		if($currentUser == 'anonymous')
 		{
-			$_SESSION['layout'][$idDashboard] = $layout;
+			$session = new Zend_Session_Namespace("Dashboard");
+			$session->idDashboard = $layout;
 		}
 		else
 		{
@@ -122,11 +123,13 @@ class Piwik_Dashboard_Controller extends Piwik_Controller
 
 		if($currentUser == 'anonymous')
 		{
-			if(!isset($_SESSION['layout'][$idDashboard]))
+			$session = new Zend_Session_Namespace("Dashboard");
+
+			if(!isset($session->idDashboard))
 			{
 				return false;
 			}
-			return $_SESSION['layout'][$idDashboard];
+			return $session->idDashboard;
 		}
 		else
 		{
